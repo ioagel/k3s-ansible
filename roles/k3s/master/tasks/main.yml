@@ -13,6 +13,14 @@
   args:
     warn: false  # The ansible systemd module does not support reset-failed
 
+- name: Copy kubelet configuration file
+  template:
+    src: "kubelet.conf.j2"
+    dest: "/etc/rancher/k3s/kubelet.conf"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Create manifests directory on first master
   file:
     path: /var/lib/rancher/k3s/server/manifests
