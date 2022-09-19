@@ -13,6 +13,14 @@
   args:
     warn: false  # The ansible systemd module does not support reset-failed
 
+- name: Create k3s conf directory if doesn't exist
+  file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
 - name: Copy kubelet configuration file
   template:
     src: "kubelet.conf.j2"
