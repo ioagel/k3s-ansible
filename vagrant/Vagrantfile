@@ -1,0 +1,42 @@
+# TODO: implement support for worker nodes also
+no_of_masters = 3
+
+Vagrant.configure("2") do |config|
+  (1..no_of_masters).each do |i|
+    config.vm.define "master-#{i}" do |master|
+      master.vm.box = "generic/ubuntu2004"
+      master.vm.hostname = "k3s-m#{i}"
+      master.vm.network "private_network", ip: "192.168.56.1#{i}"
+      master.vm.provision "shell" do |s|
+        ssh_pub_key = File.readlines("#{ENV['HOME']}/.ssh/id_rsa.pub").first.strip
+        s.inline = <<-SHELL
+          echo "adding my own ssh public key..."
+          echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+          echo "upgrading system..."
+          apt update -y
+          apt -y upgrade
+          echo "adding nodes to /etc/hosts file..."
+          for n in {1..#{no_of_masters}}
+          do
+            echo "192.168.56.1$n k3s-m$n" >> /etc/hosts
+          done
+          # longhorn
+          echo "Setting Longhorn prereqs..."
+          # https://longhorn.io/kb/troubleshooting-volume-with-multipath/
+          echo -e 'blacklist {\n devnode "^sd[a-z0-9]+"\n}' >> /etc/multipath.conf
+          systemctl restart multipathd
+          apt install -y open-iscsi
+        SHELL
+      end
+      master.vm.provider "vmware_desktop" do |v|
+        v.vmx["memsize"] = "6144"
+        v.vmx["numvcpus"] = "2"
+      end
+      # virtualbox provider
+      # master.vm.provider "virtualbox" do |v|
+      #   v.memory = 1024
+      #   v.cpus = 2
+      # end
+    end
+  end
+end
