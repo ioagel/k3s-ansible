@@ -13,12 +13,8 @@
   vars:
     # The 'if else' check fixes linting error:
     # jinja: Error in jmespath.search in json_query filter plugin: 'cluster_nodes' is undefined
-    found_nodes: |-
-      {% if cluster_nodes is defined %}
-        {{ cluster_nodes | json_query('resources[*].metadata.name') | unique | sort }}
-      {% else %}
-        default([])
-      {% endif %}
+    found_nodes: >-
+      {{ cluster_nodes is defined and cluster_nodes | json_query('resources[*].metadata.name') | unique | sort }}
     expected_nodes: |-
       {{
         (
