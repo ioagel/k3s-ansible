@@ -9,7 +9,3 @@
 
         # The test VMs might be a bit slow, so we give them more time to join the cluster:
         retry_count: 45
-
-        # Intermittent errors when waiting for the mettallb controller to be ready,
-        # where noticed when running this molecule test, so the timeout is doubled.
-        metal_lb_available_timeout: 120s
