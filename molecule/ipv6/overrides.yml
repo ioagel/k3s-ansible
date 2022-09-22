@@ -17,7 +17,7 @@
         apiserver_endpoint: fdad:bad:ba55::333
 
         # We give MetalLB address space for both IPv4 and IPv6
-        metal_lb_ip_range:
+        metallb_ip_range:
           - fdad:bad:ba55::1b:0/112
           - 192.168.123.80-192.168.123.90
 
@@ -40,6 +40,7 @@
           {{ '--node-taint node-role.kubernetes.io/master=true:NoSchedule' if k3s_node_exists | bool else '' }}
           --disable servicelb
           --disable traefik
+          --kubelet-arg 'config=/etc/rancher/k3s/kubelet.config'
           --disable-network-policy
           --cluster-cidr=10.42.0.0/16,fdad:bad:ba55:4200::/56
           --service-cidr=10.43.0.0/16,fdad:bad:ba55:4300::/108

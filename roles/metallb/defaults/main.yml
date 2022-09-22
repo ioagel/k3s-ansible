@@ -1,0 +1,8 @@
+---
+metallb_chart_version:
+
+# Namespace for metallb
+metallb_namespace: metallb-system
+
+# k3s external ip range: Metal LB pool configuration
+metallb_ip_range:
