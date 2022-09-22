@@ -1,0 +1,41 @@
+---
+
+- name: Deploy Kubernetes resources via master control node.
+  hosts: master[0]
+  gather_facts: false
+
+  collections:
+    - kubernetes.core
+
+  environment:
+    # The location of the kubeconfig file on the master.
+    K8S_AUTH_KUBECONFIG: "{{ kubeconfig }}"
+
+  pre_tasks:
+    # Install kubernetes core collection dependencies (kubernetes python package) using PIP.
+    - name: Ensure PIP is installed.
+      package:
+        name:
+          - python3-pip
+          - python3-setuptools
+        state: present
+      become: true
+      tags: ['always']
+
+    - name: Ensure kubernetes Python library is installed.
+      pip:
+        name: kubernetes
+        state: present
+      become: true
+      tags: ['always']
+
+    # Install Helm diff plugin to have a better idempotence check
+    - name: Intall Helm Plugin
+      kubernetes.core.helm_plugin:
+        plugin_path: "https://github.com/databus23/helm-diff"
+        state: present
+      tags: ['always']
+
+  roles:
+    - role: metallb
+      tags: ['metallb']

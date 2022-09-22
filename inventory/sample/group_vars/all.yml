@@ -3,6 +3,7 @@ k3s_version: v1.24.4+k3s1
 # this is the user that has ssh access to these machines
 ansible_user: ansibleuser
 systemd_dir: /etc/systemd/system
+kubeconfig: ~/.kube/config
 
 # Set your timezone
 system_timezone: "Your/Timezone"
@@ -44,12 +45,21 @@ extra_server_args: >-
 extra_agent_args: >-
   {{ extra_args }}
 
+# k3s config directory
+k3s_config_directory: /etc/rancher/k3s
+
+# kubelet configuration
+k3s_kubelet_config: |
+  apiVersion: kubelet.config.k8s.io/v1beta1
+  kind: KubeletConfiguration
+  shutdownGracePeriod: 60s
+  shutdownGracePeriodCriticalPods: 20s
+
 # image tag for kube-vip
 kube_vip_tag_version: "v0.5.0"
 
-# image tag for metal lb
-metal_lb_speaker_tag_version: "v0.13.5"
-metal_lb_controller_tag_version: "v0.13.5"
-
-# metallb ip range for load balancer
-metal_lb_ip_range: "192.168.30.80-192.168.30.90"
+# metallb related
+# helm chart version
+metallb_chart_version: "0.13.5"
+# ip range for load balancer
+metallb_ip_range: "192.168.30.80-192.168.30.90"
