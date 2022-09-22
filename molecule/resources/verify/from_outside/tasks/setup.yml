@@ -17,3 +17,14 @@
 - name: Store path to kubecfg
   ansible.builtin.set_fact:
     kubecfg_path: "{{ kubecfg.path }}/config"
+
+- name: Create testing namespace
+  block:
+    - name: "Create namespace: {{ testing_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_namespace }}"
+        state: present
+        wait: true
+        kubeconfig: "{{ kubecfg_path }}"

@@ -1,0 +1,28 @@
+---
+- name: Cert Manager example
+  block:
+    - name: Apply example manifests
+      kubernetes.core.k8s:
+        src: "{{ example_manifests_path }}/cert-manager.yml"
+        namespace: "{{ testing_namespace }}"
+        state: present
+        wait: true
+        kubeconfig: "{{ kubecfg_path }}"
+
+    - name: Get info of created certificate
+      kubernetes.core.k8s_info:
+        kind: Certificate
+        api_version: cert-manager.io/v1
+        name: selfsigned-cert
+        namespace: "{{ testing_namespace }}"
+        kubeconfig: "{{ kubecfg_path }}"
+      register: self_signed_cert
+
+    - name: Assert that the certificate has dns name 'example.com'
+      ansible.builtin.assert:
+        that: found_dns_name == expected_dns_name
+        success_msg: "Found dns certificate name as expected: {{ found_dns_name }}"
+        fail_msg: "Expected dns certificate name {{ expected_dns_name }}, but found {{ found_dns_name }}"
+      vars:
+        found_dns_name: "{{ self_signed_cert.resources[0].spec.dnsNames[0] }}"
+        expected_dns_name: "example.com"

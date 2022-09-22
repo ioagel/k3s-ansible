@@ -60,10 +60,10 @@ With the virtual environment from the previous step active in your shell session
 Interesting commands are:
 
 - `molecule create`: Create virtual machines for the test cluster nodes.
-- `molecule destroy`: Delete the virtual machines for the test cluster nodes.
 - `molecule converge`: Run the `site` playbook on the nodes of the test cluster.
-- `molecule side_effect`: Run the `reset` playbook on the nodes of the test cluster.
 - `molecule verify`: Verify that the cluster works correctly.
+- `molecule side-effect`: Run the `reset` playbook on the nodes of the test cluster.
+- `molecule destroy`: Delete the virtual machines for the test cluster nodes.
 - `molecule test`: The "all-in-one" sequence of steps that is executed in CI.
-  This includes the `create`, `converge`, `verify`, `side_effect` and `destroy` steps.
+  This includes the `create`, `converge`, `verify`, `side-effect` and `destroy` steps.
   See [`molecule.yml`](default/molecule.yml) for more details.

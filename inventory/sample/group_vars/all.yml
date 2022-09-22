@@ -6,6 +6,7 @@
 install_helm: true
 install_kubectl: false
 k8s_platform: linux
+helm_version: 'v3.10.0'
 #################
 
 k3s_version: v1.24.4+k3s1
