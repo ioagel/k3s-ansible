@@ -6,3 +6,5 @@ molecule-vagrant>=1.0.0
 molecule>=4.0.1
 netaddr>=0.8.0
 pyyaml>=3.11
+ansible-lint
+yamllint

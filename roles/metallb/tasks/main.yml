@@ -22,13 +22,17 @@
 
 - name: Wait for pods to be ready
   command:
-    cmd: "kubectl --kubeconfig {{ kubeconfig }} wait --for=condition=Ready pod --namespace={{ metallb_namespace }} --all --timeout=600s"
+    cmd: "kubectl --kubeconfig {{ kubeconfig }} wait \
+            --for=condition=Ready pod \
+            --namespace={{ metallb_namespace }} \
+            --all \
+            --timeout=600s"
   register: metallb_pods_ready
   changed_when: false
 
 - name: Configure IP address pool
   kubernetes.core.k8s:
-    definition: "{{ lookup('template', 'templates/' + item ) }}"
+    definition: "{{ lookup('template', 'templates/' + item) }}"
     state: present
   with_items:
     - metallb_config.yml.j2

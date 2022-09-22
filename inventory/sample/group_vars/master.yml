@@ -1,7 +1,9 @@
-##################################
-# ricsanfre.k8s_cli role variables
-##################################
+---
+####################################
+# ricsanfre.k8s_cli role variables #
+####################################
 install_helm: true
 install_kubectl: false
 k8s_platform: linux
-k8s_arch: amd64 # put 'arm64' for pi
+# put 'arm64' for pi
+k8s_arch: amd64
