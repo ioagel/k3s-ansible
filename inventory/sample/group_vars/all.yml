@@ -32,15 +32,15 @@ extra_args: >-
 # change these to your liking, the only required are: --disable servicelb, --tls-san {{ apiserver_endpoint }}
 extra_server_args: >-
   {{ extra_args }}
-  {{ '--node-taint node-role.kubernetes.io/master=true:NoSchedule' if k3s_node_exists | bool else '' }}
   --tls-san {{ apiserver_endpoint }}
+  {{ '--node-taint node-role.kubernetes.io/master=true:NoSchedule' if k3s_node_exists | bool else '' }}
   --disable servicelb
   --disable traefik
+  --kubelet-arg 'config=/etc/rancher/k3s/kubelet.config'
   --kube-controller-manager-arg 'bind-address=0.0.0.0'
   --kube-proxy-arg 'metrics-bind-address=0.0.0.0'
   --kube-scheduler-arg 'bind-address=0.0.0.0'
   --etcd-expose-metrics 'true'
-  --kubelet-arg 'config=/etc/rancher/k3s/kubelet.conf'
 extra_agent_args: >-
   {{ extra_args }}
 

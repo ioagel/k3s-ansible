@@ -1,5 +1,15 @@
 ---
 
+- name: Create K3S configuration directory
+  file:
+    path: "{{ k3s_config_directory }}"
+    state: directory
+
+- name: Copy kubelet configuration file
+  copy:
+    dest: "{{ k3s_config_directory }}/kubelet.config"
+    content: "{{ k3s_kubelet_config }}"
+
 - name: Clean previous runs of k3s-init
   systemd:
     name: k3s-init
@@ -12,22 +22,6 @@
   changed_when: false
   args:
     warn: false  # The ansible systemd module does not support reset-failed
-
-- name: Create k3s conf directory if doesn't exist
-  file:
-    path: /etc/rancher/k3s
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-
-- name: Copy kubelet configuration file
-  template:
-    src: "kubelet.conf.j2"
-    dest: "/etc/rancher/k3s/kubelet.conf"
-    owner: root
-    group: root
-    mode: 0644
 
 - name: Create manifests directory on first master
   file:
