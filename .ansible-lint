@@ -5,6 +5,7 @@ exclude_paths:
   - '.github/'
   - 'test/fixtures/formatting-before/'
   - 'test/fixtures/formatting-prettier/'
+  - 'roles/ricsanfre.k8s_cli/'
 
   # The "converge" and "reset" playbooks use import_playbook in
   # conjunction with the "env" lookup plugin, which lets the

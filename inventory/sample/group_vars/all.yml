@@ -1,4 +1,13 @@
 ---
+# External Roles
+####################################
+# ricsanfre.k8s_cli role variables #
+####################################
+install_helm: true
+install_kubectl: false
+k8s_platform: linux
+#################
+
 k3s_version: v1.24.4+k3s1
 # this is the user that has ssh access to these machines
 ansible_user: ansibleuser
@@ -15,7 +24,7 @@ flannel_iface: "eth0"
 apiserver_endpoint: "192.168.30.222"
 
 # k3s_token is required  masters can talk together securely
-# this token should be alpha numeric only
+# this token should be alphanumeric only
 k3s_token: "some-SUPER-DEDEUPER-secret-password"
 
 # The IP on which the node is reachable in the cluster.
@@ -63,3 +72,6 @@ kube_vip_tag_version: "v0.5.0"
 metallb_chart_version: "0.13.5"
 # ip range for load balancer
 metallb_ip_range: "192.168.30.80-192.168.30.90"
+
+# certmanager
+certmanager_chart_version: 1.9.1

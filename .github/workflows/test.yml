@@ -17,7 +17,6 @@ jobs:
       matrix:
         scenario:
           - default
-          - ipv6
           - single_node
       fail-fast: false
     env:

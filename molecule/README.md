@@ -7,10 +7,7 @@ This folder contains the [molecule](https://molecule.rtfd.io/)-based test setup 
 We have these scenarios:
 
 - **default**:
-  A 3 control + 2 worker node cluster based very closely on the [sample inventory](../inventory/sample/).
-- **ipv6**:
-  A cluster that is externally accessible via IPv6 ([more information](ipv6/README.md))
-  To save a bit of test time, this cluster is _not_ highly available, it consists of only one control and one worker node.
+  A 3 control + 2 worker node cluster based very closely on the  [sample inventory](../inventory/sample).
 - **single_node**:
   Very similar to the default scenario, but uses only a single node for all cluster functionality.
 
@@ -35,7 +32,6 @@ To set the subnet up for use with VirtualBox, please make sure that `/etc/vbox/n
 
 ```
 * 192.168.30.0/24
-* fdad:bad:ba55::/64
 ```
 
 ### Install Python dependencies
