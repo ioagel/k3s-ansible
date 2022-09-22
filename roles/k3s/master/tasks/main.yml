@@ -4,11 +4,17 @@
   file:
     path: "{{ k3s_config_directory }}"
     state: directory
+    owner: root
+    group: root
+    mode: 0755
 
 - name: Copy kubelet configuration file
   copy:
     dest: "{{ k3s_config_directory }}/kubelet.config"
     content: "{{ k3s_kubelet_config }}"
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Clean previous runs of k3s-init
   systemd:

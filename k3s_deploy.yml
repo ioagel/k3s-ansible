@@ -2,7 +2,7 @@
 
 - name: Deploy Kubernetes resources via master control node.
   hosts: master[0]
-  gather_facts: false
+  gather_facts: true
 
   collections:
     - kubernetes.core
@@ -12,6 +12,22 @@
     K8S_AUTH_KUBECONFIG: "{{ kubeconfig }}"
 
   pre_tasks:
+    - name: Update package cache Debian and derivatives
+      ansible.builtin.apt:
+        update_cache: yes
+      become: true
+      changed_when: false
+      when: ansible_os_family == "Debian"
+      tags: ['always']
+
+    - name: Update package cache Redhat and derivatives
+      ansible.builtin.dnf:
+        update_cache: yes
+      become: true
+      changed_when: false
+      when: ansible_os_family == "RedHat"
+      tags: ['always']
+
     # Install kubernetes core collection dependencies (kubernetes python package) using PIP.
     - name: Ensure PIP is installed.
       package:
