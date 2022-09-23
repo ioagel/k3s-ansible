@@ -1,6 +1,4 @@
 ---
-roles:
-  - name: ricsanfre.k8s_cli
 collections:
   - name: ansible.utils
   - name: community.general

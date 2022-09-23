@@ -4,11 +4,6 @@
     name: "{{ system_timezone }}"
   when: (system_timezone is defined) and (system_timezone != "Your/Timezone")
 
-- name: Set SELinux to disabled state
-  selinux:
-    state: disabled
-  when: ansible_os_family == "RedHat"
-
 - name: Enable IPv4 forwarding
   sysctl:
     name: net.ipv4.ip_forward
@@ -63,3 +58,57 @@
     path: /etc/sudoers
     validate: 'visudo -cf %s'
   when: ansible_os_family == "RedHat"
+
+- name: Stop and disable firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+    enabled: false
+  when: ansible_os_family == "RedHat"
+
+- name: Set SELinux state
+  selinux:
+    state: "{{ selinux_state }}"
+    policy: targeted
+  register: selinux_set
+  vars:
+    selinux_state: "{{ 'enforcing' if selinux_enabled else 'disabled' }}"
+  when: ansible_os_family == "RedHat"
+
+- name: Relabel filesystem if selinux becomes enabled
+  ansible.builtin.file:
+    path: /.autorelabel
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+  when: ansible_os_family == "RedHat" and selinux_enabled and selinux_set.changed
+
+- name: Reboot RedHat machines if selinux status changed
+  reboot:
+    reboot_timeout: 3600
+  when: ansible_os_family == "RedHat" and selinux_set.changed
+
+- name: K3s selinux policy repository gpg public key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://rpm.rancher.io/public.key
+  register: k3s_selinux_key
+  until: k3s_selinux_key is not failed
+  retries: 4
+  delay: 5
+  when: ansible_os_family == "RedHat" and selinux_enabled
+
+- name: Install required k3s selinux dependencies
+  ansible.builtin.dnf:
+    name:
+      - container-selinux
+      - selinux-policy-base
+      - "{{ k3s_selinux }}"
+    state: present
+    update_cache: true
+  register: k3s_selinux_prereqs_installed
+  until: k3s_selinux_prereqs_installed is not failed
+  retries: 4
+  delay: 5
+  when: ansible_os_family == "RedHat" and selinux_enabled

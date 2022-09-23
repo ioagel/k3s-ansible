@@ -9,7 +9,7 @@ Vagrant.configure('2') do |config|
     config.vm.define "master-#{i}" do |master|
       master.vm.box = 'generic/ubuntu2004'
       master.vm.hostname = "k3s-m#{i}"
-      master.vm.network 'private_network', ip: "192.168.56.1#{i}"
+      master.vm.network 'private_network', ip: "192.168.30.1#{i}"
       master.vm.provision 'shell' do |s|
         ssh_pub_key = File.readlines("#{ENV['HOME']}/.ssh/id_rsa.pub").first.strip
         s.inline = <<-SHELL
@@ -21,7 +21,7 @@ Vagrant.configure('2') do |config|
           echo "adding nodes to /etc/hosts file..."
           for n in {1..#{no_of_masters}}
           do
-            echo "192.168.56.1$n k3s-m$n" >> /etc/hosts
+            echo "192.168.30.1$n k3s-m$n" >> /etc/hosts
           done
           # longhorn
           echo "Setting Longhorn prereqs..."

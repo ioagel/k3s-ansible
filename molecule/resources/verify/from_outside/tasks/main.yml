@@ -2,13 +2,13 @@
 - name: Verify
   run_once: true
   delegate_to: "{{ outside_host }}"
+  environment:
+    # We need KUBECONFIG available for all tasks.
+    K8S_AUTH_KUBECONFIG: "{{ kubecfg_path }}"
   block:
-    - ansible.builtin.import_tasks: setup.yml
     - name: "TEST CASE: Get nodes"
       ansible.builtin.include_tasks: test/get-nodes.yml
     - name: "TEST CASE: Deploy example"
       ansible.builtin.include_tasks: test/deploy-example.yml
     - name: "TEST CASE: Cert Manager example"
       ansible.builtin.include_tasks: test/cert-manager-example.yml
-  always:
-    - ansible.builtin.import_tasks: teardown.yml

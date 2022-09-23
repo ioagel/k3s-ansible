@@ -15,8 +15,8 @@
     - name: Update package cache Debian and derivatives
       ansible.builtin.apt:
         update_cache: yes
+        cache_valid_time: 86400
       become: true
-      changed_when: false
       when: ansible_os_family == "Debian"
       tags: ['always']
 
@@ -29,11 +29,12 @@
       tags: ['always']
 
     # Install kubernetes core collection dependencies (kubernetes python package) using PIP.
-    - name: Ensure PIP is installed.
+    - name: Ensure pip and git are installed.
       package:
         name:
           - python3-pip
           - python3-setuptools
+          - git
         state: present
       become: true
       tags: ['always']

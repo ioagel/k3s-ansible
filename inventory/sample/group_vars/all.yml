@@ -1,15 +1,9 @@
 ---
-# External Roles
-####################################
-# ricsanfre.k8s_cli role variables #
-####################################
-install_helm: true
-install_kubectl: false
-k8s_platform: linux
-helm_version: 'v3.10.0'
-#################
-
 k3s_version: v1.24.4+k3s1
+selinux_enabled: false
+k3s_selinux: 'https://github.com/k3s-io/k3s-selinux/releases/download/v1.2.stable.2/k3s-selinux-1.2-2.el8.noarch.rpm'
+helm_version: 'v3.10.0'
+
 # this is the user that has ssh access to these machines
 ansible_user: ansibleuser
 systemd_dir: /etc/systemd/system
@@ -39,6 +33,7 @@ k3s_node_exists: "{{ 'true' if groups['node'] | default([]) | length >= 1 else '
 extra_args: >-
   --flannel-iface={{ flannel_iface }}
   --node-ip={{ k3s_node_ip }}
+  {{ '--selinux' if ansible_os_family == 'RedHat' and selinux_enabled else '' }}
 
 # change these to your liking, the only required are: --disable servicelb, --tls-san {{ apiserver_endpoint }}
 extra_server_args: >-

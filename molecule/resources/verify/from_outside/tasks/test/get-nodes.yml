@@ -2,7 +2,6 @@
 - name: Get all nodes in cluster
   kubernetes.core.k8s_info:
     kind: node
-    kubeconfig: "{{ kubecfg_path }}"
   register: cluster_nodes
 
 - name: Assert that the cluster contains exactly the expected nodes

@@ -14,10 +14,6 @@
   become: yes
   roles:
     - role: k3s/master
-    - role: ricsanfre.k8s_cli
-      vars:
-        k8s_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
-      when: inventory_hostname == groups['master'][0]
 
 - name: Install nodes
   hosts: node

@@ -6,7 +6,8 @@ driver:
 platforms:
   - &control
     name: control1
-    box: generic/ubuntu2204
+    # generic/ubuntu2004, boxomatic/centos-stream-8, boxomatic/centos-stream-9
+    box: ${VAGRANT_OS:-generic/ubuntu2204}
     memory: 2048
     cpus: 2
     config_options:

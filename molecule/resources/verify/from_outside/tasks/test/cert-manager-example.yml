@@ -1,28 +1,52 @@
 ---
 - name: Cert Manager example
+  vars:
+    expected_dns_name: 'example.com'
+    expected_secret_name: 'selfsigned-cert-tls'
   block:
+    - name: "Create namespace: {{ testing_certmanager_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_certmanager_namespace }}"
+        state: present
+        wait: true
+
     - name: Apply example manifests
       kubernetes.core.k8s:
         src: "{{ example_manifests_path }}/cert-manager.yml"
-        namespace: "{{ testing_namespace }}"
+        namespace: "{{ testing_certmanager_namespace }}"
         state: present
         wait: true
-        kubeconfig: "{{ kubecfg_path }}"
 
     - name: Get info of created certificate
       kubernetes.core.k8s_info:
         kind: Certificate
         api_version: cert-manager.io/v1
         name: selfsigned-cert
-        namespace: "{{ testing_namespace }}"
-        kubeconfig: "{{ kubecfg_path }}"
+        namespace: "{{ testing_certmanager_namespace }}"
       register: self_signed_cert
 
-    - name: Assert that the certificate has dns name 'example.com'
+    - name: Assert that the certificate has dns name '{{ expected_dns_name }}'
       ansible.builtin.assert:
         that: found_dns_name == expected_dns_name
         success_msg: "Found dns certificate name as expected: {{ found_dns_name }}"
         fail_msg: "Expected dns certificate name {{ expected_dns_name }}, but found {{ found_dns_name }}"
       vars:
         found_dns_name: "{{ self_signed_cert.resources[0].spec.dnsNames[0] }}"
-        expected_dns_name: "example.com"
+
+    - name: Assert that the certificate secret has name '{{ expected_secret_name }}'
+      ansible.builtin.assert:
+        that: found_secret_name == expected_secret_name
+        success_msg: "Found certificate secret name as expected: {{ found_secret_name }}"
+        fail_msg: "Expected certificate secret name {{ expected_secret_name }}, but found {{ found_secret_name }}"
+      vars:
+        found_secret_name: "{{ self_signed_cert.resources[0].spec.secretName }}"
+
+  always:
+    - name: "Remove namespace: {{ testing_certmanager_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_certmanager_namespace }}"
+        state: absent

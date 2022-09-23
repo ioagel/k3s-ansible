@@ -1,13 +1,20 @@
 ---
 - name: Deploy example
   block:
+    - name: "Create namespace: {{ testing_deploy_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_deploy_namespace }}"
+        state: present
+        wait: true
+
     - name: Apply example manifests
       kubernetes.core.k8s:
         src: "{{ example_manifests_path }}/{{ item }}"
-        namespace: "{{ testing_namespace }}"
+        namespace: "{{ testing_deploy_namespace }}"
         state: present
         wait: true
-        kubeconfig: "{{ kubecfg_path }}"
       with_items:
         - deployment.yml
         - service.yml
@@ -16,8 +23,7 @@
       kubernetes.core.k8s_info:
         kind: service
         name: nginx
-        namespace: "{{ testing_namespace }}"
-        kubeconfig: "{{ kubecfg_path }}"
+        namespace: "{{ testing_deploy_namespace }}"
       register: nginx_services
 
     - name: Assert that the nginx welcome page is available
@@ -34,3 +40,11 @@
           {{ nginx_services.resources[0].status.loadBalancer.ingress[0].ip }}
         port: >-
           {{ nginx_services.resources[0].spec.ports[0].port }}
+
+  always:
+    - name: "Remove namespace: {{ testing_deploy_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_deploy_namespace }}"
+        state: absent
