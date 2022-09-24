@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Check out the codebase
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # 3.0.2
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # 3.0.2
 
       - name: Configure VirtualBox
         run: |-
@@ -35,7 +35,7 @@ jobs:
           EOF
 
       - name: Cache Vagrant boxes
-        uses: actions/cache@fd5de65bc895cf536527842281bea11763fefd77 # 3.0.8
+        uses: actions/cache@fd5de65bc895cf536527842281bea11763fefd77  # 3.0.8
         with:
           path: |
             ~/.vagrant.d/boxes
@@ -61,13 +61,13 @@ jobs:
           ANSIBLE_TIMEOUT: 60
 
       - name: Upload log files
-        if: always() # do this even if a step before has failed
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # 3.1.0
+        if: always()  # do this even if a step before has failed
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8  # 3.1.0
         with:
           name: logs
           path: |
             ${{ runner.temp }}/logs
 
       - name: Delete old box versions
-        if: always() # do this even if a step before has failed
+        if: always()  # do this even if a step before has failed
         run: vagrant box prune --force

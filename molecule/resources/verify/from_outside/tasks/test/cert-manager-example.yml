@@ -27,7 +27,7 @@
         namespace: "{{ testing_certmanager_namespace }}"
       register: self_signed_cert
 
-    - name: Assert that the certificate has dns name '{{ expected_dns_name }}'
+    - name: "Assert that the certificate has dns name: {{ expected_dns_name }}"
       ansible.builtin.assert:
         that: found_dns_name == expected_dns_name
         success_msg: "Found dns certificate name as expected: {{ found_dns_name }}"
@@ -35,7 +35,7 @@
       vars:
         found_dns_name: "{{ self_signed_cert.resources[0].spec.dnsNames[0] }}"
 
-    - name: Assert that the certificate secret has name '{{ expected_secret_name }}'
+    - name: "Assert that the certificate secret has name: {{ expected_secret_name }}"
       ansible.builtin.assert:
         that: found_secret_name == expected_secret_name
         success_msg: "Found certificate secret name as expected: {{ found_secret_name }}"

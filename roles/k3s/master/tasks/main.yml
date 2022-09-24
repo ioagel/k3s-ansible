@@ -1,5 +1,4 @@
 ---
-
 - name: Create K3S configuration directory
   file:
     path: "{{ k3s_config_directory }}"
@@ -59,14 +58,15 @@
 - name: Init cluster inside the transient k3s-init service
   command:
     cmd: "systemd-run -p RestartSec=2 \
-                      -p Restart=on-failure \
-                      --unit=k3s-init \
-                      k3s server {{ server_init_args }}"
+      -p Restart=on-failure \
+      --unit=k3s-init \
+      k3s server {{ server_init_args }}"
     creates: "{{ systemd_dir }}/k3s.service"
   args:
     warn: false  # The ansible systemd module does not support transient units
 
 - name: Verification
+  when: not ansible_check_mode
   block:
     - name: Verify that all nodes actually joined (check k3s-init.service if this fails)
       command:
@@ -88,7 +88,6 @@
         name: k3s-init
         state: stopped
       failed_when: false
-  when: not ansible_check_mode
 
 - name: Copy K3s service file
   register: k3s_service
@@ -149,15 +148,19 @@
     owner: "{{ ansible_user }}"
     mode: "u=rw,g=,o="
 
-# The default value here fixes ansible-lint error:
-# 'jinja:Unrecognized type <<class 'ansible.template.AnsibleUndefined'>> for ipwrap filter <value>'
-# If by any chanche we reach the default case, we have already failed, so it will not save the task!
-- name: Configure kubectl cluster to https://{{ apiserver_endpoint | default([]) | ansible.utils.ipwrap }}:6443
+- name: Configure kubectl cluster to {{ endpoint_url }}
   command: >-
     k3s kubectl config set-cluster default
-      --server=https://{{ apiserver_endpoint | default([]) | ansible.utils.ipwrap }}:6443
+      --server={{ endpoint_url }}
       --kubeconfig ~{{ ansible_user }}/.kube/config
   changed_when: true
+  vars:
+    # Deactivated linter rules:
+    #   - jinja[invalid]: As of version 6.6.0, ansible-lint complains that the input to ipwrap
+    #                     would be undefined. This will not be the case during playbook execution.
+    # noqa jinja[invalid]
+    endpoint_url: >-
+      https://{{ apiserver_endpoint | ansible.utils.ipwrap }}:6443
 
 - name: Create kubectl symlink
   file:

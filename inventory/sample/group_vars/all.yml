@@ -1,6 +1,6 @@
 ---
 k3s_version: v1.24.4+k3s1
-selinux_enabled: false
+selinux_enabled: true
 k3s_selinux: 'https://github.com/k3s-io/k3s-selinux/releases/download/v1.2.stable.2/k3s-selinux-1.2-2.el8.noarch.rpm'
 helm_version: 'v3.10.0'
 

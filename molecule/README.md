@@ -23,6 +23,16 @@ Make sure that the following software packages are available on your system:
 - [Vagrant](https://www.vagrantup.com/downloads)
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
+Vagrant boxes used to test RedHat derivatives and Ubuntu: 
+- generic/ubuntu2204 (default)
+- generic/ubuntu2004
+- boxomatic/centos-stream-8
+- boxomatic/centos-stream-9
+- boxomatic/rocky-8
+- boxomatic/rocky-9
+- boxomatic/almalinux-8
+- boxomatic/almalinux-9
+
 ### Set up VirtualBox networking on Linux and macOS
 
 _You can safely skip this if you are working on Windows._

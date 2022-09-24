@@ -28,10 +28,11 @@
 
     - name: Assert that the nginx welcome page is available
       ansible.builtin.uri:
-        # The default value here fixes ansible-lint error:
-        # 'jinja:Unrecognized type <<class 'ansible.template.AnsibleUndefined'>> for ipwrap filter <value>'
-        # If by any chanche we reach the default case, we have already failed, so it will not save the task!
-        url: http://{{ ip | default([]) | ansible.utils.ipwrap }}:{{ port }}/
+        # Deactivated linter rules:
+        #   - jinja[invalid]: As of version 6.6.0, ansible-lint complains that the input to ipwrap
+        #                     would be undefined. This will not be the case during playbook execution.
+        # noqa jinja[invalid]
+        url: http://{{ ip | ansible.utils.ipwrap }}:{{ port }}/
         return_content: yes
       register: result
       failed_when: "'Welcome to nginx!' not in result.content"
