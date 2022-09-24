@@ -52,6 +52,10 @@
         plugin_path: "https://github.com/databus23/helm-diff"
         state: present
       tags: ['always']
+      register: helm_plugin
+      until: helm_plugin is not failed
+      retries: 4
+      delay: 5
 
   roles:
     - role: metallb
