@@ -9,9 +9,9 @@ I removed support for Raspberry Pi, until I have at least one to test with.
 
 Build a Kubernetes cluster using Ansible with k3s. The goal is easily install a HA Kubernetes cluster on machines running:
 
-- [X] Ubuntu
-- [X] Debian
-- [X] RedHat family (selinux disabled by default)
+- [X] Ubuntu (tested on 22.04)
+- [X] Debian (tested on 11)
+- [X] RedHat family (tested on CentOS 9 Stream, AlmaLinux 9, Rocky Linux 9 - supports selinux enabled)
 
 on processor architecture:
 
