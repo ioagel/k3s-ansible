@@ -74,3 +74,13 @@ Interesting commands are:
 - `molecule test`: The "all-in-one" sequence of steps that is executed in CI.
   This includes the `create`, `converge`, `verify`, `side-effect` and `destroy` steps.
   See [`molecule.yml`](default/molecule.yml) for more details.
+
+#### Make
+
+For better experience use `make`, check the [Makefile](../Makefile) for targets.
+
+For TDD like experience for the `default` scenario:
+- `make mol-conv` (converge) This will also download from the first master the `kubeconfig` file that you can use to connect to the cluster. Instructions are provided by running the target.
+- `make mol-ver` (verify)
+
+Rince and repeat.
