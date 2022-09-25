@@ -1,32 +1,35 @@
-# Automated build of HA k3s Cluster with `kube-vip` and MetalLB
+# Automated build of HA k3s Cluster with ansible
 
-![Fully Automated K3S etcd High Availability Install](https://img.youtube.com/vi/CbkEWcUZ7zM/0.jpg)
+This is based on the excellent work from [TechnoTim](https://github.com/techno-tim/k3s-ansible) whose repo I forked and combined it with code from another great repo by [ricsanfre](https://github.com/ricsanfre/pi-cluster). Finally, I put my own touches.
 
-This playbook will build an HA Kubernetes cluster with `k3s`, `kube-vip` and MetalLB via `ansible`.
+I removed support for Raspberry Pi, until I have at least one to test with.
 
-This is based on the work from [this fork](https://github.com/212850a/k3s-ansible) which is based on the work from [k3s-io/k3s-ansible](https://github.com/k3s-io/k3s-ansible). It uses [kube-vip](https://kube-vip.chipzoller.dev/) to create a load balancer for control plane, and [metal-lb](https://metallb.universe.tf/installation/) for its service `LoadBalancer`.
 
-If you want more context on how this works, see:
-
-📄 [Documentation](https://docs.technotim.live/posts/k3s-etcd-ansible/) (including example commands)
-
-📺 [Video](https://www.youtube.com/watch?v=CbkEWcUZ7zM)
-
-## 📖 k3s Ansible Playbook
+## k3s Ansible Playbook
 
 Build a Kubernetes cluster using Ansible with k3s. The goal is easily install a HA Kubernetes cluster on machines running:
 
-- [X] Debian
 - [X] Ubuntu
-- [X] CentOS
+- [X] Debian
+- [X] RedHat family (selinux disabled by default)
 
 on processor architecture:
 
 - [X] x64
 - [X] arm64
-- [X] armhf
 
-## ✅ System requirements
+### Features
+- [x] [kube-vip](https://kube-vip.io/) provides a single virtual ip to access the control plane nodes
+- [x] [metallb](https://metallb.universe.tf/) is the cluster Load Balancer
+- [x] [cert-manager](https://github.com/cert-manager/cert-manager) for cluster certificate management
+- [ ] [linkerd](https://github.com/linkerd/linkerd2) for the service mesh
+- [ ] [traefik](https://github.com/traefik/traefik) for Ingress
+- [ ] [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus) for metrics, monitoring, alerting
+- [ ] [grafana loki](https://github.com/grafana/loki) for logging
+
+The file [all.yml](inventory/sample/group_vars/all.yml) in `inventory/sample/group_vars` is where you can customize a lot of the defaults, which is required for your own environment.
+
+## System requirements
 
 - Deployment environment must have Ansible 2.4.0+.  If you need a quick primer on Ansible [you can check out my docs and setting up Ansible](https://docs.technotim.live/posts/ansible-automation/).
 
@@ -36,9 +39,9 @@ on processor architecture:
 
 - You will also need to install collections that this playbook uses by running `ansible-galaxy install -r ./collections/requirements.yml`
 
-## 🚀 Getting Started
+## Getting Started
 
-### 🍴 Preparation
+### Preparation
 
 First create a new directory based on the `sample` directory within the `inventory` directory:
 
@@ -71,7 +74,7 @@ This requires at least k3s version `1.19.1` however the version is configurable 
 
 If needed, you can also edit `inventory/my-cluster/group_vars/all.yml` to match your environment.
 
-### ☸️ Create Cluster
+### Create Cluster
 
 Start provisioning of the cluster using the following command:
 
@@ -81,7 +84,7 @@ ansible-playbook site.yml -i inventory/my-cluster/hosts.ini
 
 After deployment control plane will be accessible via virtual ip-address which is defined in inventory/group_vars/all.yml as `apiserver_endpoint`
 
-### 🔥 Remove k3s cluster
+### Remove k3s cluster
 
 ```bash
 ansible-playbook reset.yml -i inventory/my-cluster/hosts.ini
@@ -89,7 +92,7 @@ ansible-playbook reset.yml -i inventory/my-cluster/hosts.ini
 
 >You should also reboot these nodes due to the VIP not being destroyed
 
-## ⚙️ Kube Config
+## Kube Config
 
 To copy your `kube config` locally so that you can access your **Kubernetes** cluster run:
 
@@ -97,7 +100,7 @@ To copy your `kube config` locally so that you can access your **Kubernetes** cl
 scp debian@master_ip:~/.kube/config ~/.kube/config
 ```
 
-### 🔨 Testing your cluster
+### Testing your cluster
 
 See the commands [here](https://docs.technotim.live/posts/k3s-etcd-ansible/#testing-your-cluster).
 
@@ -112,10 +115,9 @@ It is run automatically in CI, but you can also run the tests locally.
 This might be helpful for quick feedback in a few cases.
 You can find more information about it [here](molecule/README.md).
 
-## Thanks 🤝
+## Thanks
 
-This repo is really standing on the shoulders of giants. Thank you to all those who have contributed and tanks to these repos for code and ideas:
+This repo is really standing on the shoulders of giants. Thank you to all those who have contributed and thanks to these repos for code and ideas:
 
-- [k3s-io/k3s-ansible](https://github.com/k3s-io/k3s-ansible)
-- [geerlingguy/turing-pi-cluster](https://github.com/geerlingguy/turing-pi-cluster)
-- [212850a/k3s-ansible](https://github.com/212850a/k3s-ansible)
+- [techno-tim/k3s-ansible](https://github.com/techno-tim/k3s-ansible)
+- [ricsanfre/pi-cluster](https://github.com/ricsanfre/pi-cluster)
