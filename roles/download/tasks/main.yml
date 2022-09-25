@@ -31,22 +31,6 @@
         ansible_facts.userspace_bits == "64" ) or
       ansible_facts.architecture is search("aarch64")
 
-- name: Download k3s binary armhf
-  get_url:
-    url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s-armhf
-    checksum: sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-arm.txt
-    dest: /usr/local/bin/k3s
-    owner: root
-    group: root
-    mode: 0755
-  register: k3s_armhf_downloaded
-  until: k3s_armhf_downloaded is not failed
-  retries: 4
-  delay: 5
-  when:
-    - ansible_facts.architecture is search("arm")
-    - ansible_facts.userspace_bits == "32"
-
 - name: Download helm tar to first master which will be our control node
   ansible.builtin.get_url:
     url: https://get.helm.sh/helm-{{ helm_version }}-linux-{{ arch }}.tar.gz

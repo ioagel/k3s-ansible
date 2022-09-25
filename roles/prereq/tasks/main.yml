@@ -59,7 +59,8 @@
     validate: 'visudo -cf %s'
   when: ansible_os_family == "RedHat"
 
-- name: Stop and disable firewalld
+# https://rancher.com/docs/k3s/latest/en/advanced/#additional-preparation-for-red-hat-centos-enterprise-linux
+- name: Stop and disable firewalld as suggested by the k3s docs
   ansible.builtin.service:
     name: firewalld
     state: stopped

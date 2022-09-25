@@ -7,7 +7,6 @@
   roles:
     - role: prereq
     - role: download
-    - role: raspberrypi
 
 - name: Install masters
   hosts: master
