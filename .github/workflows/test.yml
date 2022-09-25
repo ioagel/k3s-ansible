@@ -47,7 +47,7 @@ jobs:
         # To save some cache space, all scenarios share the same cache key.
         # On the other hand, this means that the cache contents should be
         # the same across all scenarios. This step ensures that.
-        run: /bin/bash ./.github/download-boxes.sh
+        run: /bin/bash ./.github/download_boxes.sh
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
@@ -60,7 +60,7 @@ jobs:
           python3 -m pip install -r requirements.txt
 
       - name: Test with molecule
-        run: molecule test --scenario-name ${{ matrix.scenario }}
+        run: make mol-${{ matrix.scenario }}
         env:
           ANSIBLE_K3S_LOG_DIR: ${{ runner.temp }}/logs/k3s-ansible/${{ matrix.scenario }}
           ANSIBLE_SSH_RETRIES: 4
