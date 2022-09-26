@@ -14,6 +14,15 @@ DEFAULT_FIRST_MASTER_IP := 192.168.30.38
 THREE_MASTERS_FIRST_MASTER_IP := 192.168.30.61
 FIRST_MASTER_NAME := control1
 
+CURRENT_SCENARIO ?= three_masters
+CURRENT_FIRST_MASTER_IP ?= $(THREE_MASTERS_FIRST_MASTER_IP)
+
+ifeq ($(CURRENT_SCENARIO), single_node)
+	CURRENT_FIRST_MASTER_IP := $(SINGLE_NODE_FIRST_MASTER_IP)
+else ifeq ($(CURRENT_SCENARIO), default)
+	CURRENT_FIRST_MASTER_IP := $(DEFAULT_FIRST_MASTER_IP)
+endif
+
 ##### FUNCTIONS
 define download_kubeconfig
 	@scp -q -i ~/.cache/molecule/$(notdir $(shell pwd))/$(1)/.vagrant/machines/$(FIRST_MASTER_NAME)/virtualbox/private_key \
@@ -32,14 +41,19 @@ endef
 
 .PHONY: mol-single_node mol-single mol-single-nodestroy mol-single-create mol-single-conv mol-single-ver mol-single-side mol-single-destroy
 		mol-default	mol mol-nodestroy mol-create mol-conv mol-ver mol-side mol-destroy mol-three_masters mol-three mol-three-nodestroy
-		mol-three-create mol-three-conv mol-three-ver mol-three-side mol-three-destroy lint
+		mol-three-create mol-three-conv mol-three-ver mol-three-side mol-three-destroy lint mol-kubeconfig
+
+# download kubeconfig from first master depending on scenario
+# CURRENT_SCENARIO=single_node make mol-kubeconfig # (default: three_masters)
+mol-kubeconfig:
+	$(call download_kubeconfig,$(CURRENT_SCENARIO),$(CURRENT_FIRST_MASTER_IP))
 
 ###### Linting
 lint:
-	@echo -en "$(GREEN)Check Linting using 'yamllint' and 'ansible-lint' ...$(NC)"
-	@yamllint .
-	@ansible-lint
-	@echo -e "$(GREEN)Passed!$(NC)"
+	@echo -e "$(GREEN)Check Linting using 'yamllint' and 'ansible-lint' ...$(NC)"
+	yamllint .
+	ansible-lint
+	@echo -e "$(GREEN)Linting Passed!$(NC)"
 
 ####### three_masters scenario
 mol-three_masters: mol-three

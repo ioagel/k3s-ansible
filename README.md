@@ -4,21 +4,21 @@ This is based on the excellent work from [TechnoTim](https://github.com/techno-t
 
 I removed support for Raspberry Pi, until I have at least one to test with.
 
-
 ## k3s Ansible Playbook
 
 Build a Kubernetes cluster using Ansible with k3s. The goal is easily install a HA Kubernetes cluster on machines running:
 
-- [X] Ubuntu (tested on 22.04)
-- [X] Debian (tested on 11)
-- [X] RedHat family (tested on CentOS 9 Stream, AlmaLinux 9, Rocky Linux 9 - supports selinux enabled)
+- [x] Ubuntu (tested on 22.04)
+- [x] Debian (tested on 11)
+- [x] RedHat family (tested on CentOS 9 Stream, AlmaLinux 9, Rocky Linux 9)
 
 on processor architecture:
 
-- [X] x64
-- [X] arm64
+- [x] x64
+- [x] arm64
 
 ### Features
+
 - [x] [kube-vip](https://kube-vip.io/) provides a single virtual ip to access the control plane nodes
 - [x] [metallb](https://metallb.universe.tf/) is the cluster Load Balancer
 - [x] [cert-manager](https://github.com/cert-manager/cert-manager) for cluster certificate management
@@ -31,7 +31,7 @@ The file [all.yml](inventory/sample/group_vars/all.yml) in `inventory/sample/gro
 
 ## System requirements
 
-- Deployment environment must have Ansible 2.4.0+.  If you need a quick primer on Ansible [you can check out my docs and setting up Ansible](https://docs.technotim.live/posts/ansible-automation/).
+- Deployment environment must have Ansible 2.4.0+. If you need a quick primer on Ansible [you can check out my docs and setting up Ansible](https://docs.technotim.live/posts/ansible-automation/).
 
 - [`netaddr` package](https://pypi.org/project/netaddr/) must be available to Ansible. If you have installed Ansible via apt, this is already taken care of. If you have installed Ansible via `pip`, make sure to install `netaddr` into the respective virtual environment.
 
@@ -90,7 +90,7 @@ After deployment control plane will be accessible via virtual ip-address which i
 ansible-playbook reset.yml -i inventory/my-cluster/hosts.ini
 ```
 
->You should also reboot these nodes due to the VIP not being destroyed
+> You should also reboot these nodes due to the VIP not being destroyed
 
 ## Kube Config
 

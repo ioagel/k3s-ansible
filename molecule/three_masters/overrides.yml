@@ -15,4 +15,5 @@
         apiserver_endpoint: "192.168.30.224"
         metallb_ip_range: "192.168.30.101-192.168.30.109"
 
-        selinux_enabled: true
+        # not ready yet to switch it on
+        # selinux_enabled: true

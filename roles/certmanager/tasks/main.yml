@@ -39,7 +39,6 @@
   kubernetes.core.k8s:
     definition: "{{ lookup('template', 'templates/' + item) }}"
     state: present
-    wait: true
   with_items:
     - selfsigned_issuer.yml.j2
     - ca_issuer.yml.j2

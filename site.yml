@@ -1,5 +1,4 @@
 ---
-
 - name: Include k3s install play
   ansible.builtin.import_playbook: k3s_install.yml
 

@@ -1,8 +1,9 @@
 ---
 k3s_version: v1.24.4+k3s1
+helm_version: "v3.10.0"
+# linkerd fails with selinux enabled
 selinux_enabled: false
-k3s_selinux: 'https://github.com/k3s-io/k3s-selinux/releases/download/v1.2.stable.2/k3s-selinux-1.2-2.el8.noarch.rpm'
-helm_version: 'v3.10.0'
+k3s_selinux: "https://github.com/k3s-io/k3s-selinux/releases/download/v1.2.stable.2/k3s-selinux-1.2-2.el8.noarch.rpm"
 
 # this is the user that has ssh access to these machines
 ansible_user: ansibleuser
@@ -64,7 +65,7 @@ k3s_kubelet_config: |
 # image tag for kube-vip
 kube_vip_tag_version: "v0.5.0"
 
-# metallb related
+# metallb
 # helm chart version
 metallb_chart_version: "0.13.5"
 # ip range for load balancer
@@ -72,3 +73,11 @@ metallb_ip_range: "192.168.30.80-192.168.30.90"
 
 # certmanager
 certmanager_chart_version: 1.9.1
+
+# linkerd
+linkerd_version: "stable-2.12.1"
+linkerd_control_plane_chart_verion: "1.9.3"
+linkerd_crds_chart_version: "1.4.0"
+linkerd_namespace: linkerd
+# disable linkerd HA manually by setting: linkerd_ha = false
+linkerd_ha: "{{ true if groups['k3s_cluster'] | default([]) | length >= 3 else false }}"

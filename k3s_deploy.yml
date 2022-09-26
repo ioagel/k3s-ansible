@@ -1,5 +1,4 @@
 ---
-
 - name: Deploy Kubernetes resources via master control node.
   hosts: master[0]
   gather_facts: true
@@ -18,7 +17,7 @@
         cache_valid_time: 86400
       become: true
       when: ansible_os_family == "Debian"
-      tags: ['always']
+      tags: ["always"]
 
     - name: Update package cache Redhat and derivatives
       ansible.builtin.dnf:
@@ -26,7 +25,7 @@
       become: true
       changed_when: false
       when: ansible_os_family == "RedHat"
-      tags: ['always']
+      tags: ["always"]
 
     # Install kubernetes core collection dependencies (kubernetes python package) using PIP.
     - name: Ensure pip and git are installed.
@@ -37,21 +36,21 @@
           - git
         state: present
       become: true
-      tags: ['always']
+      tags: ["always"]
 
     - name: Ensure kubernetes Python library is installed.
       pip:
         name: kubernetes
         state: present
       become: true
-      tags: ['always']
+      tags: ["always"]
 
     # Install Helm diff plugin to have a better idempotence check
     - name: Intall Helm Plugin
       kubernetes.core.helm_plugin:
         plugin_path: "https://github.com/databus23/helm-diff"
         state: present
-      tags: ['always']
+      tags: ["always"]
       register: helm_plugin
       until: helm_plugin is not failed
       retries: 4
@@ -59,6 +58,8 @@
 
   roles:
     - role: metallb
-      tags: ['metallb']
+      tags: ["metallb"]
     - role: certmanager
-      tags: ['certmanager']
+      tags: ["certmanager"]
+    - role: linkerd/control-plane
+      tags: ["linkerd"]

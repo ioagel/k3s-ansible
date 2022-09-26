@@ -37,7 +37,6 @@
   kubernetes.core.k8s:
     definition: "{{ lookup('template', 'templates/' + item) }}"
     state: present
-    wait: true
   with_items:
     - metallb_config.yml.j2
   # random fails
