@@ -7,7 +7,7 @@ metadata:
   namespace: "{{ metallb_namespace }}"
 spec:
   addresses:
-  - "{{ metallb_ip_range }}"
+    - "{{ metallb_ip_range }}"
 
 ---
 # L2 configuration
@@ -18,4 +18,4 @@ metadata:
   namespace: "{{ metallb_namespace }}"
 spec:
   ipAddressPools:
-  - cluster-ip-pool
+    - cluster-ip-pool

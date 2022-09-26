@@ -1,11 +1,22 @@
 ---
+ignore: |
+  .venv/
+  vagrant/
+
 extends: default
 
-ignore-from-file: .gitignore
+yaml-files:
+  - "*.yaml"
+  - "*.yml"
+  - "*.yml.j2"
+  - "*.yaml.j2"
+  - ".yamllint"
 
 rules:
   line-length:
     max: 120
     level: warning
   truthy:
-    allowed-values: ['true', 'false', 'yes', 'no', 'on']
+    allowed-values: ["true", "false", "yes", "no", "on"]
+  comments:
+    min-spaces-from-content: 1

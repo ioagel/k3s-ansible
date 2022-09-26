@@ -54,3 +54,9 @@
   file:
     path: /tmp/k3s
     state: absent
+
+- name: Remove k3s selinux dependencies
+  ansible.builtin.dnf:
+    name: k3s-selinux
+    state: absent
+  when: ansible_os_family == "RedHat"
