@@ -11,6 +11,7 @@ NC := \033[0m
 # IMPORTANT: if you change any of these in molecule.yml then adapt the variables below.
 SINGLE_NODE_FIRST_MASTER_IP := 192.168.30.50
 DEFAULT_FIRST_MASTER_IP := 192.168.30.38
+THREE_MASTERS_FIRST_MASTER_IP := 192.168.30.61
 FIRST_MASTER_NAME := control1
 
 ##### FUNCTIONS
@@ -21,8 +22,51 @@ define download_kubeconfig
 		kubeconfig.$(1)
 endef
 
+define converge
+	molecule converge -s $(1)
+	$(call download_kubeconfig,$(1),$(2))
+	@echo -e "To access the cluster, run: $(GREEN)export KUBECONFIG=kubeconfig.$(1)$(NC)"
+endef
+
+###############
+
 .PHONY: mol-single_node mol-single mol-single-nodestroy mol-single-create mol-single-conv mol-single-ver mol-single-side mol-single-destroy
-		mol-default	mol mol-nodestroy mol-create mol-conv mol-ver mol-side mol-destroy
+		mol-default	mol mol-nodestroy mol-create mol-conv mol-ver mol-side mol-destroy mol-three_masters mol-three mol-three-nodestroy
+		mol-three-create mol-three-conv mol-three-ver mol-three-side mol-three-destroy lint
+
+###### Linting
+lint:
+	@echo -en "$(GREEN)Check Linting using 'yamllint' and 'ansible-lint' ...$(NC)"
+	@yamllint .
+	@ansible-lint
+	@echo -e "$(GREEN)Passed!$(NC)"
+
+####### three_masters scenario
+mol-three_masters: mol-three
+
+mol-three:
+	molecule test -s three_masters
+
+mol-three-nodestroy:
+	molecule test -s three_masters --destroy=never
+
+mol-three-create:
+	molecule create -s three_masters
+
+mol-three-conv: 
+	$(call converge,three_masters,$(THREE_MASTERS_FIRST_MASTER_IP))
+
+mol-three-ver:
+	molecule verify -s three_masters
+
+mol-three-side:
+	molecule side-effect -s three_masters
+
+mol-three-destroy:
+	molecule destroy -s three_masters
+	rm -f kubeconfig.three_masters
+
+#########
 
 ###### single_node scenario
 mol-single_node: mol-single
@@ -37,9 +81,7 @@ mol-single-create:
 	molecule create -s single_node
 
 mol-single-conv: 
-	molecule converge -s single_node
-	$(call download_kubeconfig,single_node,$(SINGLE_NODE_FIRST_MASTER_IP))
-	@echo -e "To access the cluster, run: $(GREEN)export KUBECONFIG=kubeconfig.single_node$(NC)"
+	$(call converge,single_node,$(SINGLE_NODE_FIRST_MASTER_IP))
 
 mol-single-ver:
 	molecule verify -s single_node
@@ -66,9 +108,7 @@ mol-create:
 	molecule create
 
 mol-conv:
-	molecule converge
-	$(call download_kubeconfig,default,$(DEFAULT_FIRST_MASTER_IP))
-	@echo -e "To access the cluster, run: $(GREEN)export KUBECONFIG=kubeconfig.default$(NC)"
+	$(call converge,default,$(DEFAULT_FIRST_MASTER_IP))
 
 mol-ver:
 	molecule verify

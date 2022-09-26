@@ -1,0 +1,57 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+.platform_presets:
+  - &control
+    memory: 3072
+    cpus: 2
+    groups:
+      - k3s_cluster
+      - master
+  - &os
+    box: ${VAGRANT_OS:-generic/centos9s}
+platforms:
+  - <<: [*control, *os]
+    name: control1
+    interfaces:
+      - network_name: private_network
+        ip: 192.168.30.61
+  - <<: [*control, *os]
+    name: control2
+    interfaces:
+      - network_name: private_network
+        ip: 192.168.30.62
+  - <<: [*control, *os]
+    name: control3
+    interfaces:
+      - network_name: private_network
+        ip: 192.168.30.63
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../resources/converge.yml
+    side_effect: ../resources/reset.yml
+    verify: ../resources/verify.yml
+  inventory:
+    links:
+      group_vars: ../../inventory/sample/group_vars
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    # idempotence is not possible with the playbook in its current form.
+    - verify
+    # We are repurposing side_effect here to test the reset playbook.
+    # This is why we do not run it before verify (which tests the cluster),
+    # but after the verify step.
+    - side_effect
+    - cleanup
+    - destroy

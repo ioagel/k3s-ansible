@@ -25,10 +25,10 @@
 - name: Wait for pods to be ready
   command:
     cmd: "kubectl --kubeconfig {{ kubeconfig }} \
-            wait --for=condition=Ready pod \
-            --namespace={{ certmanager_namespace }} \
-            --all \
-            --timeout=120s"
+      wait --for=condition=Ready pod \
+      --namespace={{ certmanager_namespace }} \
+      --all \
+      --timeout=120s"
   register: certmanager_pods_ready
   until: certmanager_pods_ready.rc == 0
   retries: 4
@@ -39,6 +39,7 @@
   kubernetes.core.k8s:
     definition: "{{ lookup('template', 'templates/' + item) }}"
     state: present
+    wait: true
   with_items:
     - selfsigned_issuer.yml.j2
     - ca_issuer.yml.j2
