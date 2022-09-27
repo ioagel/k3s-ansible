@@ -86,7 +86,7 @@
       identity:
         issuer:
           scheme: kubernetes.io/tls
-      # can be deployed on masters, I consider it a system functionality
+      # able to be deployed on masters when they are tainted
       tolerations:
         - effect: NoSchedule
           key: node-role.kubernetes.io/master
