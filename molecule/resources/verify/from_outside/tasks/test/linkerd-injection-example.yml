@@ -15,7 +15,7 @@
       retries: 4
       delay: 5
 
-    - name: "Create namespace: {{ testing_linkerd_namespace }} with linkerd injection annotation"
+    - name: "Create namespace: {{ testing_linkerd_namespace }}"
       kubernetes.core.k8s:
         definition:
           apiVersion: v1
