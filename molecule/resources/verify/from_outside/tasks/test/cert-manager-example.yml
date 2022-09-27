@@ -1,8 +1,8 @@
 ---
 - name: Cert Manager example
   vars:
-    expected_dns_name: 'example.com'
-    expected_secret_name: 'selfsigned-cert-tls'
+    expected_dns_name: "example.com"
+    expected_secret_name: "selfsigned-cert-tls"
   block:
     - name: "Create namespace: {{ testing_certmanager_namespace }}"
       kubernetes.core.k8s:
@@ -18,6 +18,10 @@
         namespace: "{{ testing_certmanager_namespace }}"
         state: present
         wait: true
+      register: cert_creation
+      until: cert_creation is not failed
+      retries: 4
+      delay: 5
 
     - name: Get info of created certificate
       kubernetes.core.k8s_info:

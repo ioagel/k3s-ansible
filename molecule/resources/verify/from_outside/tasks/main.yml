@@ -5,6 +5,8 @@
   environment:
     # We need KUBECONFIG available for all tasks.
     K8S_AUTH_KUBECONFIG: "{{ kubecfg_path }}"
+    # This is needed for accessing the cluster through ansible command or/and shell modules
+    KUBECONFIG: "{{ kubecfg_path }}"
   block:
     - name: "TEST CASE: Get nodes"
       ansible.builtin.include_tasks: test/get-nodes.yml
@@ -12,3 +14,5 @@
       ansible.builtin.include_tasks: test/deploy-example.yml
     - name: "TEST CASE: Cert Manager example"
       ansible.builtin.include_tasks: test/cert-manager-example.yml
+    - name: "TEST CASE: Linkerd injection example"
+      ansible.builtin.include_tasks: test/linkerd-injection-example.yml

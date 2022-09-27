@@ -18,6 +18,10 @@
       with_items:
         - deployment.yml
         - service.yml
+      register: deploy_creation
+      until: deploy_creation is not failed
+      retries: 4
+      delay: 5
 
     - name: Get info about nginx service
       kubernetes.core.k8s_info:
