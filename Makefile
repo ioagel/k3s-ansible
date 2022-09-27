@@ -8,6 +8,8 @@ YELLOW := \033[0;33m
 NC := \033[0m
 
 ##### Variables
+GIT_ROOT := $(shell git rev-parse --show-toplevel)
+LOG_DIR := $(GIT_ROOT)/.logs
 # IMPORTANT: if you change any of these in molecule.yml then adapt the variables below.
 SINGLE_NODE_FIRST_MASTER_IP := 192.168.30.50
 DEFAULT_FIRST_MASTER_IP := 192.168.30.38
@@ -32,7 +34,7 @@ define download_kubeconfig
 endef
 
 define converge
-	molecule converge -s $(1)
+	ANSIBLE_K3S_LOG_DIR=$(LOG_DIR)/$(1) molecule converge -s $(1)
 	$(call download_kubeconfig,$(1),$(2))
 	@echo -e "To access the cluster, run: $(GREEN)export KUBECONFIG=kubeconfig.$(1)$(NC)"
 endef
