@@ -16,6 +16,7 @@ DEFAULT_FIRST_MASTER_IP := 192.168.30.38
 THREE_MASTERS_FIRST_MASTER_IP := 192.168.30.61
 FIRST_MASTER_NAME := control1
 
+# Default scenario: three_masters
 CURRENT_SCENARIO ?= three_masters
 CURRENT_FIRST_MASTER_IP ?= $(THREE_MASTERS_FIRST_MASTER_IP)
 
@@ -30,13 +31,13 @@ define download_kubeconfig
 	@scp -q -i ~/.cache/molecule/$(notdir $(shell pwd))/$(1)/.vagrant/machines/$(FIRST_MASTER_NAME)/virtualbox/private_key \
 		-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR \
 		vagrant@$(2):~/.kube/config \
-		kubeconfig.$(1)
+		$(GIT_ROOT)/kubeconfig.$(1)
+	@echo -e "To access the cluster, run: $(GREEN)export KUBECONFIG=$(GIT_ROOT)/kubeconfig.$(1)$(NC)"
 endef
 
 define converge
 	ANSIBLE_K3S_LOG_DIR=$(LOG_DIR)/$(1) molecule converge -s $(1)
 	$(call download_kubeconfig,$(1),$(2))
-	@echo -e "To access the cluster, run: $(GREEN)export KUBECONFIG=kubeconfig.$(1)$(NC)"
 endef
 
 ###############
@@ -80,7 +81,7 @@ mol-three-side:
 
 mol-three-destroy:
 	molecule destroy -s three_masters
-	rm -f kubeconfig.three_masters
+	rm -f $(GIT_ROOT)/kubeconfig.three_masters
 
 #########
 
@@ -107,7 +108,7 @@ mol-single-side:
 
 mol-single-destroy:
 	molecule destroy -s single_node
-	rm -f kubeconfig.single_node
+	rm -f $(GIT_ROOT)/kubeconfig.single_node
 
 #########
 
@@ -134,6 +135,6 @@ mol-side:
 
 mol-destroy:
 	molecule destroy
-	rm -f kubeconfig.default
+	rm -f $(GIT_ROOT)/kubeconfig.default
 
 ###########
