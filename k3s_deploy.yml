@@ -61,5 +61,5 @@
       tags: ["metallb"]
     - role: certmanager
       tags: ["certmanager"]
-    - role: linkerd/control-plane
+    - role: linkerd/control_plane
       tags: ["linkerd"]

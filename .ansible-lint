@@ -13,6 +13,8 @@ exclude_paths:
   - 'molecule/**/converge.yml'
   - 'molecule/**/prepare.yml'
   - 'molecule/**/reset.yml'
+  - 'molecule/**/molecule.yml'
+  - 'examples/'
 
 skip_list:
   - 'fqcn-builtins'

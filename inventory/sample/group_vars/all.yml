@@ -1,4 +1,12 @@
 ---
+# IMPORTANT: Change the following variables for your environment
+# ansible_user:
+# system_timezone:
+# flannel_iface:
+# apiserver_endpoint:
+# k3s_token:
+# metallb_ip_range:
+
 k3s_version: v1.24.4+k3s1
 helm_version: "v3.10.0"
 # linkerd fails with selinux enabled
@@ -6,15 +14,18 @@ selinux_enabled: false
 k3s_selinux: "https://github.com/k3s-io/k3s-selinux/releases/download/v1.2.stable.2/k3s-selinux-1.2-2.el8.noarch.rpm"
 
 # this is the user that has ssh access to these machines
-ansible_user: ansibleuser
+ansible_user: vagrant
 systemd_dir: /etc/systemd/system
 kubeconfig: ~/.kube/config
 
 # Set your timezone
 system_timezone: "Your/Timezone"
 
-# interface which will be used for flannel
-flannel_iface: "eth0"
+# Interface which will be used for flannel
+# yamllint disable-line rule:line-length
+# See: https://github.com/flannel-io/flannel/blob/67d603aaf45ef80f5dd39f43714fc5e6f8a637eb/Documentation/troubleshooting.md#Vagrant  # noqa yaml[line-length]
+# Be sure to change this appropriately
+flannel_iface: "eth1"
 
 # apiserver_endpoint is virtual ip-address which will be configured on each master
 apiserver_endpoint: "192.168.30.222"

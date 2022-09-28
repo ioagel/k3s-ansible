@@ -6,7 +6,7 @@
     # We need KUBECONFIG available for all tasks.
     K8S_AUTH_KUBECONFIG: "{{ kubecfg_path }}"
     # This is needed for accessing the cluster through ansible command or/and shell modules
-    KUBECONFIG: "{{ kubecfg_path }}"
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   block:
     - name: "TEST CASE: Get nodes"
       ansible.builtin.include_tasks: test/get-nodes.yml

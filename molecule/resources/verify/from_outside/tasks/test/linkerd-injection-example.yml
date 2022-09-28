@@ -5,6 +5,7 @@
       ansible.builtin.shell:
         cmd: linkerd viz install | kubectl apply -f -
       changed_when: false
+      delegate_to: "{{ groups['master'][0] }}"
 
     - name: Wait for all Linkerd Viz pods to be ready
       ansible.builtin.command:
@@ -14,6 +15,7 @@
       until: viz_installed is not failed
       retries: 4
       delay: 5
+      delegate_to: "{{ groups['master'][0] }}"
 
     - name: "Create namespace: {{ testing_linkerd_namespace }}"
       kubernetes.core.k8s:
@@ -34,7 +36,7 @@
         state: present
         wait: true
 
-    - name: Check if ngix deployment was injected by linkerd
+    - name: Check if nginx deployment was injected by linkerd
       command:
         cmd: linkerd viz -n {{ testing_linkerd_namespace }} edges deployment -o json
       changed_when: false
@@ -42,11 +44,12 @@
       until: viz_check_deploy is not failed and viz_check_deploy.stdout != '[]'
       retries: 5
       delay: 5
+      delegate_to: "{{ groups['master'][0] }}"
 
     - name: Assert that nginx deployment is secure
       ansible.builtin.assert:
         that: secured_message == '' and viz_deploy_array | length > 0
-        success_msg: "deployment succesfully injected and supports mtls"
+        success_msg: "deployment successfully injected and supports mtls"
         fail_msg: >-
           deployment does not support mtls with message: '{{ secured_message }}'
           - Viz deploy array: {{ viz_deploy_array }}
@@ -67,3 +70,4 @@
       ansible.builtin.shell:
         cmd: linkerd viz uninstall | kubectl delete -f -
       changed_when: false
+      delegate_to: "{{ groups['master'][0] }}"
