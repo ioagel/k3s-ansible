@@ -83,12 +83,23 @@ metallb_chart_version: "0.13.5"
 metallb_ip_range: "192.168.30.80-192.168.30.90"
 
 # certmanager
-certmanager_chart_version: 1.9.1
+certmanager_chart_version: "1.9.1"
 
 # linkerd
 linkerd_version: "stable-2.12.1"
 linkerd_control_plane_chart_verion: "1.9.3"
 linkerd_crds_chart_version: "1.4.0"
-linkerd_namespace: linkerd
 # disable linkerd HA manually by setting: linkerd_ha = false
 linkerd_ha: "{{ true if groups['k3s_cluster'] | default([]) | length >= 3 else false }}"
+
+# traefik
+traefik_chart_version: "10.26.1"
+# Endpoint Service DNS name
+traefik_dashboard_dns: traefik.k3s-cluster.net
+# Basic auth user/passwd
+traefik_basic_auth_user: admin
+traefik_basic_auth_passwd: secret
+# provided by metallb
+traefik_external_ip: 192.168.30.80
+# Number of pods of the deployment
+traefik_replicas: 1

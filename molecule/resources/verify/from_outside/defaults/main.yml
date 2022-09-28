@@ -1,5 +1,5 @@
 ---
-# A host outside of the cluster from which the checks shall be performed
+# A host outside the cluster from which the checks shall be performed
 outside_host: localhost
 
 # This kubernetes namespaces will be used for testing

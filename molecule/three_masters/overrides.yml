@@ -20,3 +20,6 @@
           --write-kubeconfig-mode 644
           --tls-san "192.168.30.224"
           {{ extra_server_args }}
+
+        traefik_external_ip: 192.168.30.101
+        traefik_dashboard_dns: traefik-three-masters.k3s-cluster.net

@@ -20,11 +20,17 @@ FIRST_MASTER_NAME := control1
 CURRENT_SCENARIO ?= default
 CURRENT_FIRST_MASTER_IP ?= $(DEFAULT_FIRST_MASTER_IP)
 
+ANSIBLE_SSH_RETRIES ?= 5
+ANSIBLE_TIMEOUT ?= 30
+export ANSIBLE_SSH_RETRIES
+export ANSIBLE_TIMEOUT
+
 ifeq ($(CURRENT_SCENARIO), single_node)
 	CURRENT_FIRST_MASTER_IP := $(SINGLE_NODE_FIRST_MASTER_IP)
 else ifeq ($(CURRENT_SCENARIO), three_masters)
 	CURRENT_FIRST_MASTER_IP := $(THREE_MASTERS_FIRST_MASTER_IP)
 endif
+#####
 
 ##### FUNCTIONS
 define download_kubeconfig
@@ -39,7 +45,6 @@ define converge
 	ANSIBLE_K3S_LOG_DIR=$(LOG_DIR)/$(1) molecule converge -s $(1)
 	$(call download_kubeconfig,$(1),$(2))
 endef
-
 ###############
 
 .PHONY: mol-single_node mol-single mol-single-nodestroy mol-single-create mol-single-conv mol-single-ver mol-single-side mol-single-destroy
@@ -61,16 +66,17 @@ lint:
 ####### three_masters scenario
 mol-three_masters: mol-three
 
+# ANSIBLE_K3S_LOG_DIR is set in GitHUb action
 mol-three:
 	molecule test -s three_masters
 
 mol-three-nodestroy:
-	molecule test -s three_masters --destroy=never
+	ANSIBLE_K3S_LOG_DIR=$(LOG_DIR)/three_masters molecule test -s three_masters --destroy=never
 
 mol-three-create:
 	molecule create -s three_masters
 
-mol-three-conv: 
+mol-three-conv:
 	$(call converge,three_masters,$(THREE_MASTERS_FIRST_MASTER_IP))
 
 mol-three-ver:
@@ -82,22 +88,22 @@ mol-three-side:
 mol-three-destroy:
 	molecule destroy -s three_masters
 	rm -f $(GIT_ROOT)/kubeconfig.three_masters
-
 #########
 
 ###### single_node scenario
 mol-single_node: mol-single
 
+# ANSIBLE_K3S_LOG_DIR is set in GitHUb action
 mol-single:
 	molecule test -s single_node
 
 mol-single-nodestroy:
-	molecule test -s single_node --destroy=never
+	ANSIBLE_K3S_LOG_DIR=$(LOG_DIR)/single_node molecule test -s single_node --destroy=never
 
 mol-single-create:
 	molecule create -s single_node
 
-mol-single-conv: 
+mol-single-conv:
 	$(call converge,single_node,$(SINGLE_NODE_FIRST_MASTER_IP))
 
 mol-single-ver:
@@ -109,17 +115,17 @@ mol-single-side:
 mol-single-destroy:
 	molecule destroy -s single_node
 	rm -f $(GIT_ROOT)/kubeconfig.single_node
-
 #########
 
 ####### default scenario
 mol-default: mol
 
+# ANSIBLE_K3S_LOG_DIR is set in GitHUb action
 mol:
 	molecule test
 
 mol-nodestroy:
-	molecule test --destroy=never
+	ANSIBLE_K3S_LOG_DIR=$(LOG_DIR)/default molecule test --destroy=never
 
 mol-create:
 	molecule create
@@ -136,5 +142,4 @@ mol-side:
 mol-destroy:
 	molecule destroy
 	rm -f $(GIT_ROOT)/kubeconfig.default
-
 ###########

@@ -1,4 +1,6 @@
 ---
+linkerd_namespace: linkerd
+
 # Package download url and checksum
 linkerd_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
 linkerd_bin: "linkerd2-cli-{{ linkerd_version }}-linux-{{ linkerd_arch }}"

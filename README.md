@@ -22,8 +22,8 @@ on processor architecture:
 - [x] [kube-vip](https://kube-vip.io/) provides a single virtual ip to access the control plane nodes
 - [x] [metallb](https://metallb.universe.tf/) is the cluster Load Balancer
 - [x] [cert-manager](https://github.com/cert-manager/cert-manager) for cluster certificate management
-- [ ] [linkerd](https://github.com/linkerd/linkerd2) for the service mesh
-- [ ] [traefik](https://github.com/traefik/traefik) for Ingress
+- [x] [linkerd](https://github.com/linkerd/linkerd2) for the service mesh
+- [x] [traefik](https://github.com/traefik/traefik) for Ingress
 - [ ] [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus) for metrics, monitoring, alerting
 - [ ] [grafana loki](https://github.com/grafana/loki) for logging
 
