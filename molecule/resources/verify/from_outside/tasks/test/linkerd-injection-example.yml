@@ -6,6 +6,10 @@
         cmd: linkerd viz install | kubectl apply -f -
       changed_when: false
       delegate_to: "{{ groups['master'][0] }}"
+      register: installing_viz
+      until: installing_viz is not failed
+      retries: 5
+      delay: 10
 
     - name: Wait for all Linkerd Viz pods to be ready
       ansible.builtin.command:
@@ -13,7 +17,7 @@
       changed_when: false
       register: viz_installed
       until: viz_installed is not failed
-      retries: 4
+      retries: 5
       delay: 5
       delegate_to: "{{ groups['master'][0] }}"
 
