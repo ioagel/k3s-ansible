@@ -17,6 +17,7 @@ jobs:
     runs-on: macos-12
 
     strategy:
+      max-parallel: 1
       matrix:
         scenario:
           - default
@@ -47,6 +48,12 @@ jobs:
           restore-keys: |
             vagrant-boxes
 
+      - name: Download Vagrant boxes for all scenarios
+        # To save some cache space, all scenarios share the same cache key.
+        # On the other hand, this means that the cache contents should be
+        # the same across all scenarios. This step ensures that.
+        run: /bin/bash ./.github/download_boxes.sh
+
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
@@ -56,12 +63,6 @@ jobs:
         run: >-
           python3 -m pip install --upgrade pip &&
           python3 -m pip install -r requirements.txt
-
-      # - name: Download Vagrant boxes for all scenarios
-      # To save some cache space, all scenarios share the same cache key.
-      # On the other hand, this means that the cache contents should be
-      # the same across all scenarios. This step ensures that.
-      # run: ./.github/download_boxes.sh
 
       - name: Test with molecule
         run: make mol-${{ matrix.scenario }}

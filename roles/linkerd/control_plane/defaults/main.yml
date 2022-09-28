@@ -1,0 +1,10 @@
+---
+# Package download url and checksum
+linkerd_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+linkerd_bin: "linkerd2-cli-{{ linkerd_version }}-linux-{{ linkerd_arch }}"
+linkerd_bin_url: "https://github.com/linkerd/linkerd2/releases/download/{{ linkerd_version }}/{{ linkerd_bin }}"
+linkerd_checksum: "sha256:{{ linkerd_bin_url }}.sha256"
+
+# helm values HA file
+linkerd_charts_path: "https://raw.githubusercontent.com/linkerd/linkerd2/{{ linkerd_version }}/charts"
+linkerd_values_ha_file: "{{ linkerd_charts_path }}/linkerd-control-plane/values-ha.yaml"

@@ -1,0 +1,13 @@
+---
+- name: Install linkerd cli
+  get_url:
+    url: "{{ linkerd_bin_url }}"
+    dest: /usr/local/bin/linkerd
+    owner: root
+    group: root
+    mode: 0755
+    # checksum: "{{ linkerd_checksum }}"
+  register: linkerd_downloaded
+  until: linkerd_downloaded is not failed
+  retries: 4
+  delay: 10

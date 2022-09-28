@@ -1,0 +1,93 @@
+---
+- name: Check Linkerd CLI installation status
+  stat:
+    path: /usr/local/bin/linkerd
+  register: _linkerd_bin
+
+- name: Install linkerd CLI
+  include_tasks: install_linkerd_cli.yml
+  args:
+    apply:
+      become: true
+  when:
+    - not _linkerd_bin.stat.exists
+
+- name: Create linkerd namespace.
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/' + item) }}"
+    state: present
+  with_items:
+    - linkerd_namespace.yml.j2
+
+- name: Create linkerd issuer
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/' + item) }}"
+    state: present
+  with_items:
+    - linkerd_issuer.yml.j2
+  register: linkerd_issuer_created
+  until: linkerd_issuer_created is not failed
+  retries: 4
+  delay: 10
+
+- name: Get ca.crt from linkerd-identity
+  shell: |
+    set -o pipefail
+    kubectl --kubeconfig {{ kubeconfig }} get secret \
+    -n "{{ linkerd_namespace }}" linkerd-identity-issuer \
+    -o jsonpath="{.data.ca\.crt}" | base64 -d
+  args:
+    executable: /bin/bash
+  register: output_ca_crt
+  changed_when: false
+  until: output_ca_crt is not failed
+  retries: 4
+  delay: 10
+
+- name: Add Linkerd stable repo.
+  kubernetes.core.helm_repository:
+    name: linkerd
+    repo_url: "https://helm.linkerd.io/stable"
+
+- name: Deploy Linkerd-crds Helm chart.
+  kubernetes.core.helm:
+    name: linkerd-crds
+    chart_ref: linkerd/linkerd-crds
+    chart_version: "{{ linkerd_crds_chart_version }}"
+    release_namespace: "{{ linkerd_namespace }}"
+    update_repo_cache: true
+    state: present
+    wait: true
+
+- name: Download linkerd HA values file
+  get_url:
+    url: "{{ linkerd_values_ha_file }}"
+    dest: /tmp/linkerd_values_ha.yml
+    mode: 0644
+  register: values_ha_file_downloaded
+  until: values_ha_file_downloaded is not failed
+  retries: 4
+  delay: 10
+  when: linkerd_ha
+
+- name: Deploy Linkerd-control Helm chart
+  kubernetes.core.helm:
+    name: linkerd-control-plane
+    chart_ref: linkerd/linkerd-control-plane
+    chart_version: "{{ linkerd_control_plane_chart_verion }}"
+    release_namespace: "{{ linkerd_namespace }}"
+    update_repo_cache: true
+    state: present
+    wait: true
+    values_files: "{{ ['/tmp/linkerd_values_ha.yml'] if linkerd_ha else [] }}"
+    values:
+      installNamespace: false
+      identityTrustAnchorsPEM: "{{ output_ca_crt.stdout }}"
+      identity:
+        issuer:
+          scheme: kubernetes.io/tls
+      # able to be deployed on masters when they are tainted
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists

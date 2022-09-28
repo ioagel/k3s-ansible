@@ -6,8 +6,8 @@ driver:
 platforms:
   - name: control1
     box: ${VAGRANT_OS:-generic/ubuntu2204}
-    memory: 4096
-    cpus: 4
+    memory: 8192
+    cpus: 3
     groups:
       - k3s_cluster
       - master

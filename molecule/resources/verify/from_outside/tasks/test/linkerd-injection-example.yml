@@ -1,0 +1,77 @@
+---
+- name: Linkerd injection example
+  block:
+    - name: Install Linkerd Viz for checking
+      ansible.builtin.shell:
+        cmd: linkerd viz install | kubectl apply -f -
+      changed_when: false
+      delegate_to: "{{ groups['master'][0] }}"
+      register: installing_viz
+      until: installing_viz is not failed
+      retries: 5
+      delay: 10
+
+    - name: Wait for all Linkerd Viz pods to be ready
+      ansible.builtin.command:
+        cmd: linkerd viz check
+      changed_when: false
+      register: viz_installed
+      until: viz_installed is not failed
+      retries: 5
+      delay: 5
+      delegate_to: "{{ groups['master'][0] }}"
+
+    - name: "Create namespace: {{ testing_linkerd_namespace }}"
+      kubernetes.core.k8s:
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ testing_linkerd_namespace }}"
+            annotations:
+              linkerd.io/inject: enabled
+        state: present
+        wait: true
+
+    - name: Apply example deployment to be meshed
+      kubernetes.core.k8s:
+        src: "{{ example_manifests_path }}/deployment.yml"
+        namespace: "{{ testing_linkerd_namespace }}"
+        state: present
+        wait: true
+
+    - name: Check if nginx deployment was injected by linkerd
+      command:
+        cmd: linkerd viz -n {{ testing_linkerd_namespace }} edges deployment -o json
+      changed_when: false
+      register: viz_check_deploy
+      until: viz_check_deploy is not failed and viz_check_deploy.stdout != '[]'
+      retries: 5
+      delay: 5
+      delegate_to: "{{ groups['master'][0] }}"
+
+    - name: Assert that nginx deployment is secure
+      ansible.builtin.assert:
+        that: secured_message == '' and viz_deploy_array | length > 0
+        success_msg: "deployment successfully injected and supports mtls"
+        fail_msg: >-
+          deployment does not support mtls with message: '{{ secured_message }}'
+          - Viz deploy array: {{ viz_deploy_array }}
+      vars:
+        viz_deploy_array: "{{ viz_check_deploy.stdout | from_json }}"
+        secured_message: >-
+          {{ viz_check_deploy.stdout | from_json | json_query('[0].no_tls_reason') }}
+
+  always:
+    - name: "Remove namespace: {{ testing_linkerd_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_linkerd_namespace }}"
+        state: absent
+
+    - name: Uninstall Linkerd Viz
+      ansible.builtin.shell:
+        cmd: linkerd viz uninstall | kubectl delete -f -
+      changed_when: false
+      delegate_to: "{{ groups['master'][0] }}"

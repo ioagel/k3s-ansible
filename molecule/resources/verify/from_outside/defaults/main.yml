@@ -5,6 +5,7 @@ outside_host: localhost
 # This kubernetes namespaces will be used for testing
 testing_deploy_namespace: molecule-verify-from-outside
 testing_certmanager_namespace: molecule-certmanager
+testing_linkerd_namespace: molecule-linkerd
 
 # The directory in which the example manifests reside
-example_manifests_path: ../../../../example
+example_manifests_path: ../../../../examples
