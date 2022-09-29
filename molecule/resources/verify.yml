@@ -1,7 +1,10 @@
 ---
 - name: Apply overrides
-  ansible.builtin.import_playbook: >-
-    {{ lookup("ansible.builtin.env", "MOLECULE_SCENARIO_DIRECTORY") }}/overrides.yml
+  hosts: control1
+  tasks:
+    - name: Include common overrides
+      include_tasks: >-
+        {{ lookup("ansible.builtin.env", "MOLECULE_SCENARIO_DIRECTORY") }}/common-overrides.yml
 
 - name: Verify
   # use our 1st master for testing the k3s cluster

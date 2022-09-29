@@ -24,12 +24,12 @@
 
 - name: Wait for pods to be ready
   command:
-    cmd: "kubectl wait --for=condition=Ready pod --namespace={{ traefik_namespace }} --all --timeout=600s"
+    cmd: "kubectl wait --for=condition=Ready pod --namespace={{ traefik_namespace }} --all --timeout=120s"
   changed_when: false
   register: traefik_pods_ready
   until: traefik_pods_ready is not failed
-  retries: 4
-  delay: 10
+  retries: 5
+  delay: 5
 
 - name: Create Basic authentication credentials
   include_tasks: create_basic_auth_credentials.yml
@@ -39,7 +39,6 @@
     definition: "{{ lookup('template', 'templates/' + item) }}"
     state: present
   with_items:
-    - redirect_middleware.yml.j2
     - basicauth_middleware.yml.j2
     - traefik_dashboard.yml.j2
     - traefik_metrics.yml.j2

@@ -16,14 +16,29 @@
         - "{{ testing_traefik_dns }}"
       become: yes
 
+    - name: Get Traefik https CA cert
+      kubernetes.core.k8s_info:
+        kind: Secret
+        api_version: v1
+        namespace: traefik-system
+        name: traefik-tls
+      register: traefik_secret
+    - name: Create file for the CA used to sign all certs in cluster
+      copy:
+        content: "{{ traefik_secret.resources[0].data['ca.crt'] | b64decode }}"
+        dest: "{{ ca_file }}"
+        mode: 0644
+
     - name: "TEST CASE: Get nodes"
       ansible.builtin.include_tasks: test/get-nodes.yml
-    - name: "TEST CASE: Deploy example"
-      ansible.builtin.include_tasks: test/deploy-example.yml
-    - name: "TEST CASE: Cert Manager example"
-      ansible.builtin.include_tasks: test/cert-manager-example.yml
-    - name: "TEST CASE: Linkerd injection example"
-      ansible.builtin.include_tasks: test/linkerd-injection-example.yml
+    - name: "TEST CASE: Deployment"
+      ansible.builtin.include_tasks: test/deployment.yml
+    - name: "TEST CASE: Cert Manager"
+      ansible.builtin.include_tasks: test/cert-manager.yml
+    - name: "TEST CASE: Linkerd injection"
+      ansible.builtin.include_tasks: test/linkerd-injection.yml
+    - name: "TEST CASE: Traefik"
+      ansible.builtin.include_tasks: test/traefik.yml
 
   always:
     - name: "Add entries to /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
@@ -34,3 +49,8 @@
       loop:
         - "{{ testing_traefik_dns }}"
       become: yes
+
+    - name: Clean up CA file
+      ansible.builtin.file:
+        path: "{{ ca_file }}"
+        state: absent

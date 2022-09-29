@@ -15,6 +15,7 @@ exclude_paths:
   - 'molecule/**/reset.yml'
   - 'molecule/**/molecule.yml'
   - 'molecule/**/verify.yml'
+  - 'molecule/**/common-overrides.yml'
   - 'examples/'
 
 skip_list:

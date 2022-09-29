@@ -1,0 +1,20 @@
+---
+- name: Traefik test and example
+  block:
+    - name: Assert Traefik dashboard is accessible through https and Basic Auth works
+      uri:
+        url: "https://{{ traefik_dashboard_dns }}/dashboard/"
+        validate_certs: yes
+        ca_path: "{{ ca_file }}"
+        status_code: 200
+        user: "{{ traefik_basic_auth_user }}"
+        password: "{{ traefik_basic_auth_passwd }}"
+
+    - name: Assert that http to https redirection is forced when accessing Traefik dashboard
+      uri:
+        url: "http://{{ traefik_dashboard_dns }}/dashboard/"
+        validate_certs: no
+        user: "{{ traefik_basic_auth_user }}"
+        password: "{{ traefik_basic_auth_passwd }}"
+      register: tf_dashboard
+      failed_when: not tf_dashboard.redirected or tf_dashboard.url != 'https://' + traefik_dashboard_dns + '/dashboard/'

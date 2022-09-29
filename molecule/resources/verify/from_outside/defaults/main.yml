@@ -2,6 +2,8 @@
 # A host outside the cluster from which the checks shall be performed
 outside_host: localhost
 
+ca_file: /tmp/ca.crt
+
 # This kubernetes namespaces will be used for testing
 testing_deploy_namespace: molecule-verify-from-outside
 testing_certmanager_namespace: molecule-certmanager

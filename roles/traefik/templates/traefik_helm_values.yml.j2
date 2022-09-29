@@ -30,6 +30,9 @@ deployment:
 service:
   spec:
     loadBalancerIP: {{ traefik_external_ip }}
+ports:
+  web:
+    redirectTo: websecure
 # Enable cross namespace references
 providers:
   kubernetesCRD:

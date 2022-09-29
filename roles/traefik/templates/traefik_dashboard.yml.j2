@@ -52,28 +52,3 @@ spec:
                 name: traefik-dashboard
                 port:
                   number: 9000
-
----
-# http ingress for http->https redirection
-kind: Ingress
-apiVersion: networking.k8s.io/v1
-metadata:
-  name: traefik-redirect
-  namespace: {{ traefik_namespace }}
-  annotations:
-    # Use redirect Middleware configured
-    traefik.ingress.kubernetes.io/router.middlewares: {{ traefik_namespace }}-redirect@kubernetescrd
-    # HTTP as entrypoint
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-spec:
-  rules:
-    - host: {{ traefik_dashboard_dns }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: traefik-dashboard
-                port:
-                  number: 9000
