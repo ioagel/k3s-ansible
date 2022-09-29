@@ -8,6 +8,14 @@
     # This is needed for accessing the cluster through ansible command or/and shell modules
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   block:
+    - name: "Add entries to /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ traefik_external_ip }} {{ item }}"
+      loop:
+        - "{{ testing_traefik_dns }}"
+      become: yes
+
     - name: "TEST CASE: Get nodes"
       ansible.builtin.include_tasks: test/get-nodes.yml
     - name: "TEST CASE: Deploy example"
@@ -16,3 +24,13 @@
       ansible.builtin.include_tasks: test/cert-manager-example.yml
     - name: "TEST CASE: Linkerd injection example"
       ansible.builtin.include_tasks: test/linkerd-injection-example.yml
+
+  always:
+    - name: "Add entries to /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ traefik_external_ip }} {{ item }}"
+        state: absent
+      loop:
+        - "{{ testing_traefik_dns }}"
+      become: yes

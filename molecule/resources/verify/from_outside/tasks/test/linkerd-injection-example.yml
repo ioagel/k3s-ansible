@@ -52,15 +52,15 @@
 
     - name: Assert that nginx deployment is secure
       ansible.builtin.assert:
-        that: secured_message == '' and viz_deploy_array | length > 0
+        that: secured_message == '' and viz_deploy_json | length > 0
         success_msg: "deployment successfully injected and supports mtls"
         fail_msg: >-
-          deployment does not support mtls with message: '{{ secured_message }}'
-          - Viz deploy array: {{ viz_deploy_array }}
+          Deployment does not support mtls with secured message: '{{ secured_message }}'
+          - Entire linkerd viz result is: {{ viz_deploy_json }}
       vars:
-        viz_deploy_array: "{{ viz_check_deploy.stdout | from_json }}"
+        viz_deploy_json: "{{ viz_check_deploy.stdout | from_json }}"
         secured_message: >-
-          {{ viz_check_deploy.stdout | from_json | json_query('[0].no_tls_reason') }}
+          {{ viz_deploy_json | json_query('[0].no_tls_reason') }}
 
   always:
     - name: "Remove namespace: {{ testing_linkerd_namespace }}"

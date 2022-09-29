@@ -7,5 +7,8 @@ testing_deploy_namespace: molecule-verify-from-outside
 testing_certmanager_namespace: molecule-certmanager
 testing_linkerd_namespace: molecule-linkerd
 
+testing_traefik_namespace: molecule-traefik
+testing_traefik_dns: traefik-test.k3s-cluster.net
+
 # The directory in which the example manifests reside
 example_manifests_path: ../../../../examples
