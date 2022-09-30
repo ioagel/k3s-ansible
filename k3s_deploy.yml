@@ -53,8 +53,7 @@
       tags: ["always"]
       register: helm_plugin
       until: helm_plugin is not failed
-      retries: 4
-      delay: 5
+      retries: 5
 
   roles:
     - role: metallb

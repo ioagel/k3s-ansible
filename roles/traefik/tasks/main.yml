@@ -21,6 +21,9 @@
     update_repo_cache: true
     state: present
     values: "{{ lookup('template', 'templates/traefik_helm_values.yml.j2') | from_yaml }}"
+  register: traefik_deployed
+  until: traefik_deployed is not failed
+  retries: 5
 
 - name: Wait for pods to be ready
   command:
@@ -29,7 +32,6 @@
   register: traefik_pods_ready
   until: traefik_pods_ready is not failed
   retries: 5
-  delay: 5
 
 - name: Create Basic authentication credentials
   include_tasks: create_basic_auth_credentials.yml
@@ -45,4 +47,3 @@
   register: traefik_configured
   until: traefik_configured is not failed
   retries: 5
-  delay: 10

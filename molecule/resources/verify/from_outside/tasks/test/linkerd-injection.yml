@@ -9,7 +9,6 @@
       register: installing_viz
       until: installing_viz is not failed
       retries: 5
-      delay: 10
 
     - name: Wait for all Linkerd Viz pods to be ready
       ansible.builtin.command:
@@ -18,7 +17,6 @@
       register: viz_installed
       until: viz_installed is not failed
       retries: 5
-      delay: 5
       delegate_to: control1
 
     - name: "Create namespace: {{ testing_linkerd_namespace }}"
@@ -47,7 +45,6 @@
       register: viz_check_deploy
       until: viz_check_deploy is not failed and viz_check_deploy.stdout != '[]'
       retries: 5
-      delay: 5
       delegate_to: control1
 
     - name: Assert that nginx deployment is secure

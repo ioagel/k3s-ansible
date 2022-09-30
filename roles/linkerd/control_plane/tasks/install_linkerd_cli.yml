@@ -9,5 +9,4 @@
     # checksum: "{{ linkerd_checksum }}"
   register: linkerd_downloaded
   until: linkerd_downloaded is not failed
-  retries: 4
-  delay: 10
+  retries: 5

@@ -29,8 +29,7 @@
       --timeout=120s"
   register: metallb_pods_ready
   until: metallb_pods_ready.rc == 0
-  retries: 6
-  delay: 10
+  retries: 5
   changed_when: false
 
 - name: Configure IP address pool
@@ -42,5 +41,4 @@
   # random fails
   register: ip_addr_pool_set
   until: ip_addr_pool_set is not failed
-  retries: 4
-  delay: 10
+  retries: 5

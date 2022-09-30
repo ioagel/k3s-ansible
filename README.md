@@ -23,7 +23,7 @@ on processor architecture:
 - [x] [metallb](https://metallb.universe.tf/) is the cluster Load Balancer
 - [x] [cert-manager](https://github.com/cert-manager/cert-manager) for cluster certificate management
 - [x] [linkerd](https://github.com/linkerd/linkerd2) for the service mesh
-- [x] [traefik](https://github.com/traefik/traefik) for Ingress
+- [x] [traefik](https://github.com/traefik/traefik) for Ingress (with default http to https redirect)
 - [ ] [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus) for metrics, monitoring, alerting
 - [ ] [grafana loki](https://github.com/grafana/loki) for logging
 
@@ -117,7 +117,7 @@ You can find more information about it [here](molecule/README.md).
 
 ## Thanks
 
-This repo is really standing on the shoulders of giants. Thank you to all those who have contributed and thanks to these repos for code and ideas:
+This repo is really standing on the shoulders of giants. Thank you to all those who have contributed, and thanks to these repos for code and ideas:
 
 - [techno-tim/k3s-ansible](https://github.com/techno-tim/k3s-ansible)
 - [ricsanfre/pi-cluster](https://github.com/ricsanfre/pi-cluster)
