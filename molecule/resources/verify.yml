@@ -1,16 +1,12 @@
 ---
-- name: Apply overrides
-  hosts: control1
-  tasks:
-    - name: Include common overrides
-      include_tasks: >-
-        {{ lookup("ansible.builtin.env", "MOLECULE_SCENARIO_DIRECTORY") }}/common-overrides.yml
-
 - name: Verify
   # use our 1st master for testing the k3s cluster
   hosts: control1
 
   pre_tasks:
+    - name: Include common overrides
+      include_tasks: "{{ lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_DIRECTORY') }}/common-overrides.yml"
+      when: lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_NAME') != 'default'
     - name: Create temporary directory for kubecfg
       ansible.builtin.tempfile:
         state: directory

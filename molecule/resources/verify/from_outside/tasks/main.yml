@@ -41,7 +41,7 @@
       ansible.builtin.include_tasks: test/traefik.yml
 
   always:
-    - name: "Add entries to /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
+    - name: "Delete entries from /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
       lineinfile:
         path: /etc/hosts
         line: "{{ traefik_external_ip }} {{ item }}"
