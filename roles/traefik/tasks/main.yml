@@ -42,3 +42,7 @@
     - basicauth_middleware.yml.j2
     - traefik_dashboard.yml.j2
     - traefik_metrics.yml.j2
+  register: traefik_configured
+  until: traefik_configured is not failed
+  retries: 5
+  delay: 10

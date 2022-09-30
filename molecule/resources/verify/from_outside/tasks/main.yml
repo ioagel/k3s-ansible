@@ -13,6 +13,7 @@
         path: /etc/hosts
         line: "{{ traefik_external_ip }} {{ item }}"
       loop:
+        - "{{ traefik_dashboard_dns }}"
         - "{{ testing_traefik_dns }}"
       become: yes
 
@@ -47,6 +48,7 @@
         line: "{{ traefik_external_ip }} {{ item }}"
         state: absent
       loop:
+        - "{{ traefik_dashboard_dns }}"
         - "{{ testing_traefik_dns }}"
       become: yes
 
