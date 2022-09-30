@@ -6,9 +6,15 @@
 # apiserver_endpoint:
 # k3s_token:
 # metallb_ip_range:
+# traefik_external_ip:
+# traefik_dashboard_dns:
+# traefik_basic_auth_user:
+# traefik_basic_auth_passwd:
 
 k3s_version: v1.24.4+k3s1
 helm_version: "v3.10.0"
+
+# selinux
 # linkerd fails with selinux enabled
 selinux_enabled: false
 k3s_selinux: "https://github.com/k3s-io/k3s-selinux/releases/download/v1.2.stable.2/k3s-selinux-1.2-2.el8.noarch.rpm"
@@ -94,12 +100,12 @@ linkerd_ha: "{{ true if groups['k3s_cluster'] | default([]) | length >= 3 else f
 
 # traefik
 traefik_chart_version: "10.26.1"
-# Endpoint Service DNS name
+# provided by metallb
+traefik_external_ip: 192.168.30.80
+# Dashboard Ingress DNS name
 traefik_dashboard_dns: traefik.k3s-cluster.net
 # Basic auth user/passwd
 traefik_basic_auth_user: admin
 traefik_basic_auth_passwd: secret
-# provided by metallb
-traefik_external_ip: 192.168.30.80
 # Number of pods of the deployment
 traefik_replicas: 1
