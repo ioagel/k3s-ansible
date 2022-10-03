@@ -96,8 +96,7 @@
     key: https://rpm.rancher.io/public.key
   register: k3s_selinux_key
   until: k3s_selinux_key is not failed
-  retries: 4
-  delay: 5
+  retries: 5
   when: ansible_os_family == "RedHat" and selinux_enabled
 
 - name: Install required k3s selinux dependencies
@@ -110,6 +109,5 @@
     update_cache: true
   register: k3s_selinux_prereqs_installed
   until: k3s_selinux_prereqs_installed is not failed
-  retries: 4
-  delay: 5
+  retries: 5
   when: ansible_os_family == "RedHat" and selinux_enabled

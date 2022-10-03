@@ -31,8 +31,7 @@
       --timeout=120s"
   register: certmanager_pods_ready
   until: certmanager_pods_ready.rc == 0
-  retries: 4
-  delay: 10
+  retries: 5
   changed_when: false
 
 - name: Configure Cluster Issuers
@@ -45,5 +44,4 @@
   # random fails
   register: cluster_issuer_set
   until: cluster_issuer_set is not failed
-  retries: 4
-  delay: 10
+  retries: 5

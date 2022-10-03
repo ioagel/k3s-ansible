@@ -27,8 +27,7 @@
     - linkerd_issuer.yml.j2
   register: linkerd_issuer_created
   until: linkerd_issuer_created is not failed
-  retries: 4
-  delay: 10
+  retries: 5
 
 - name: Get ca.crt from linkerd-identity
   shell: |
@@ -41,8 +40,7 @@
   register: output_ca_crt
   changed_when: false
   until: output_ca_crt is not failed
-  retries: 4
-  delay: 10
+  retries: 5
 
 - name: Add Linkerd stable repo.
   kubernetes.core.helm_repository:
@@ -66,8 +64,7 @@
     mode: 0644
   register: values_ha_file_downloaded
   until: values_ha_file_downloaded is not failed
-  retries: 4
-  delay: 10
+  retries: 5
   when: linkerd_ha
 
 - name: Deploy Linkerd-control Helm chart

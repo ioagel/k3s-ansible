@@ -2,18 +2,26 @@
 - name: Apply overrides
   hosts: all
   tasks:
+    - name: Include common overrides
+      include_tasks: common-overrides.yml
+
+    # Need to set it here to prevent duplication in next task
+    - name: Set virtual address
+      set_fact:
+        kube_vip_ip: 192.168.30.223
+
     - name: Override host variables
       ansible.builtin.set_fact:
         # The test VMs might be a bit slow, so we give them more time to join the cluster:
         retry_count: 45
 
         # Make sure that our IP ranges do not collide with those of the default scenario
-        apiserver_endpoint: "192.168.30.223"
+        apiserver_endpoint: "{{ kube_vip_ip }}"
         metallb_ip_range: "192.168.30.91-192.168.30.99"
 
         # override it to make kubeconfig easier to access in tests,
         # and we must again add the '--tls-san' because the already existing value is from our sample
         extra_server_args: >-
           --write-kubeconfig-mode 644
-          --tls-san "192.168.30.223"
+          --tls-san {{ kube_vip_ip }}
           {{ extra_server_args }}

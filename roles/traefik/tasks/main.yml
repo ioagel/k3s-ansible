@@ -1,0 +1,49 @@
+---
+
+- name: Create traefik namespace.
+  kubernetes.core.k8s:
+    name: "{{ traefik_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Add Traefik chart repo.
+  kubernetes.core.helm_repository:
+    name: traefik
+    repo_url: "https://helm.traefik.io/traefik"
+
+- name: Deploy traefik Helm chart.
+  kubernetes.core.helm:
+    name: traefik
+    chart_ref: traefik/traefik
+    chart_version: "{{ traefik_chart_version }}"
+    release_namespace: "{{ traefik_namespace }}"
+    update_repo_cache: true
+    state: present
+    values: "{{ lookup('template', 'templates/traefik_helm_values.yml.j2') | from_yaml }}"
+  register: traefik_deployed
+  until: traefik_deployed is not failed
+  retries: 5
+
+- name: Wait for pods to be ready
+  command:
+    cmd: "kubectl wait --for=condition=Ready pod --namespace={{ traefik_namespace }} --all --timeout=120s"
+  changed_when: false
+  register: traefik_pods_ready
+  until: traefik_pods_ready is not failed
+  retries: 5
+
+- name: Create Basic authentication credentials
+  include_tasks: create_basic_auth_credentials.yml
+
+- name: Configure Traefik
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/' + item) }}"
+    state: present
+  with_items:
+    - basicauth_middleware.yml.j2
+    - traefik_dashboard.yml.j2
+    - traefik_metrics.yml.j2
+  register: traefik_configured
+  until: traefik_configured is not failed
+  retries: 5
