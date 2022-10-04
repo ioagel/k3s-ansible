@@ -1,0 +1,66 @@
+---
+- name: Longhorn test
+  block:
+    - name: Assert Longhorn dashboard is accessible through https and Basic Auth works
+      uri:
+        url: "https://{{ longhorn_dashboard_dns }}"
+        validate_certs: yes
+        ca_path: "{{ ca_file }}"
+        status_code: 200
+        user: "{{ traefik_basic_auth_user }}"
+        password: "{{ traefik_basic_auth_passwd }}"
+
+    - name: Assert that http to https redirection is forced when accessing Longhorn dashboard
+      uri:
+        url: "http://{{ longhorn_dashboard_dns }}"
+        validate_certs: no
+        user: "{{ traefik_basic_auth_user }}"
+        password: "{{ traefik_basic_auth_passwd }}"
+      register: lh_dashboard
+      failed_when: not lh_dashboard.redirected or lh_dashboard.url != 'https://' + longhorn_dashboard_dns + '/'
+
+    - name: "Create namespace: {{ testing_longhorn_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_longhorn_namespace }}"
+        state: present
+        wait: true
+
+    - name: Apply k8s manifests making use of Longhorn storage through a PVC
+      kubernetes.core.k8s:
+        src: "{{ example_manifests_path }}/longhorn.yml"
+        namespace: "{{ testing_longhorn_namespace }}"
+        state: present
+        wait: true
+      register: lh_creation
+      until: lh_creation is not failed
+      retries: 5
+
+    - name: Get info about the Longhorn pvc
+      kubernetes.core.k8s_info:
+        kind: PersistentVolumeClaim
+        name: nginx-logs
+        namespace: "{{ testing_longhorn_namespace }}"
+      register: lh_pvc
+
+    - name: Assert that the PVC is bound and StorageClass is longhorn
+      assert:
+        that: pvc_status == expected_status and storage_class == expected_storage_class
+        success_msg: "PVC status/storageClassName were found as expected: {{ pvc_status }}/{{ storage_class }}"
+        fail_msg: >-
+          Expected PVC status: {{ expected_status }}, but found: {{ pvc_status }}
+          | Expected StorageClass name: {{ expected_storage_class }}, but found: {{ storage_class }}
+      vars:
+        pvc_status: "{{ lh_pvc.resources[0].status.phase }}"
+        storage_class: "{{ lh_pvc.resources[0].spec.storageClassName }}"
+        expected_status: "Bound"
+        expected_storage_class: "longhorn"
+
+  always:
+    - name: "Remove namespace: {{ testing_longhorn_namespace }}"
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ testing_longhorn_namespace }}"
+        state: absent

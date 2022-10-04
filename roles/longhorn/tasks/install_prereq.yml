@@ -1,0 +1,60 @@
+---
+- name: Check if all longhorn prereqs are installed
+  shell:
+    cmd: "curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/\
+          {{ longhorn_app_version }}/scripts/environment_check.sh | bash"
+  register: check_prereqs
+  changed_when: check_prereqs.rc != 0
+  failed_when: false
+
+- name: Install open-iscsi through kubernetes
+  command:
+    cmd: "kubectl --kubeconfig {{ kubeconfig }} \
+      apply -f \
+      https://raw.githubusercontent.com/longhorn/longhorn/\
+      {{ longhorn_app_version }}/deploy/prerequisite/longhorn-iscsi-installation.yaml"
+  register: iscsi_install
+  when: check_prereqs.changed
+
+- name: Wait until open-iscsi installation completes
+  shell:
+    cmd: "kubectl --kubeconfig {{ kubeconfig }} \
+      logs -l app=longhorn-iscsi-installation \
+      -c iscsi-installation --tail=1 | uniq"
+  register: iscsi_installed
+  until: "'iscsi install successfully' in iscsi_installed.stdout"
+  retries: 5
+  delay: 30
+  when: iscsi_install is defined and iscsi_install.changed
+
+- name: Install NFSv4 client through kubernetes
+  command:
+    cmd: "kubectl --kubeconfig {{ kubeconfig }} \
+      apply -f \
+      https://raw.githubusercontent.com/longhorn/longhorn/\
+      {{ longhorn_app_version }}/deploy/prerequisite/longhorn-nfs-installation.yaml"
+  register: nfs_install
+  when: check_prereqs.changed
+
+- name: Wait until NFSv4 client installation completes
+  shell:
+    cmd: "kubectl --kubeconfig {{ kubeconfig }} \
+      logs -l app=longhorn-nfs-installation \
+      -c nfs-installation --tail=1 | uniq"
+  register: nfs_installed
+  until: "'nfs install successfully' in nfs_installed.stdout"
+  retries: 5
+  delay: 30
+  when: nfs_install is defined and nfs_install.changed
+
+- name: Remove installation Daemonsets
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: DaemonSet
+    namespace: default
+    name: "{{ item }}"
+  loop:
+    - longhorn-iscsi-installation
+    - longhorn-nfs-installation
+  when: iscsi_install.changed or nfs_install.changed

@@ -1,5 +1,0 @@
----
-certmanager_chart_version:
-
-# Namespace for cert-manager
-certmanager_namespace: certmanager-system

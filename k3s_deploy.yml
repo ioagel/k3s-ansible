@@ -27,13 +27,14 @@
       when: ansible_os_family == "RedHat"
       tags: ["always"]
 
-    # Install kubernetes core collection dependencies (kubernetes python package) using PIP.
-    - name: Ensure pip and git are installed.
+    # Install required packages
+    - name: Ensure pip, git and jq are installed.
       package:
         name:
           - python3-pip
           - python3-setuptools
           - git
+          - jq
         state: present
       become: true
       tags: ["always"]
@@ -62,5 +63,8 @@
       tags: ["certmanager"]
     - role: linkerd/control_plane
       tags: ["linkerd"]
+      when: linkerd_enabled
     - role: traefik
       tags: ["traefik"]
+    - role: longhorn
+      tags: ["longhorn"]
