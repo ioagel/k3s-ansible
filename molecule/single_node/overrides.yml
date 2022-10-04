@@ -22,6 +22,5 @@
         # override it to make kubeconfig easier to access in tests,
         # and we must again add the '--tls-san' because the already existing value is from our sample
         extra_server_args: >-
-          --write-kubeconfig-mode 644
           --tls-san {{ kube_vip_ip }}
           {{ extra_server_args }}

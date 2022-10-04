@@ -21,3 +21,5 @@ exclude_paths:
 skip_list:
   - 'fqcn-builtins'
   - template-instead-of-copy
+  - command-instead-of-module
+  - no-handler

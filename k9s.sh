@@ -3,18 +3,17 @@
 # 'k9s' is a useful terminal based program to work with your cluster
 # You need it installed: https://github.com/derailed/k9s and added to $PATH
 
-CURRENT_SCENARIO=default
-
 case "$1" in
   "single")
-    CURRENT_SCENARIO=single_node
+    export CURRENT_SCENARIO=single_node
     echo "Selected 'single_node' scenario"
     ;;
   "three")
-    CURRENT_SCENARIO=three_masters
+    export CURRENT_SCENARIO=three_masters
     echo "Selected 'three_masters' scenario"
     ;;
   "")
+    export CURRENT_SCENARIO=default
     echo "Selected 'default' scenario"
     ;;
   *)

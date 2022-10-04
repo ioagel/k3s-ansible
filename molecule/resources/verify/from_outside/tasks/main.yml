@@ -5,8 +5,7 @@
   environment:
     # We need KUBECONFIG available for all tasks.
     K8S_AUTH_KUBECONFIG: "{{ kubecfg_path }}"
-    # This is needed for accessing the cluster through ansible command or/and shell modules
-    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
   block:
     - name: "Add entries to /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
       lineinfile:
@@ -14,7 +13,7 @@
         line: "{{ traefik_external_ip }} {{ item }}"
       loop:
         - "{{ traefik_dashboard_dns }}"
-        - "{{ testing_traefik_dns }}"
+        - "{{ longhorn_dashboard_dns }}"
       become: yes
 
     - name: Get Traefik https CA cert
@@ -40,6 +39,8 @@
       ansible.builtin.include_tasks: test/linkerd-injection.yml
     - name: "TEST CASE: Traefik"
       ansible.builtin.include_tasks: test/traefik.yml
+    - name: "TEST CASE: Longhorn"
+      ansible.builtin.include_tasks: test/longhorn.yml
 
   always:
     - name: "Delete entries from /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
@@ -49,7 +50,7 @@
         state: absent
       loop:
         - "{{ traefik_dashboard_dns }}"
-        - "{{ testing_traefik_dns }}"
+        - "{{ longhorn_dashboard_dns }}"
       become: yes
 
     - name: Clean up CA file

@@ -3,3 +3,4 @@
   ansible.builtin.set_fact:
     traefik_external_ip: 192.168.30.91
     traefik_dashboard_dns: traefik-single.k3s-cluster.net
+    longhorn_dashboard_dns: longhorn-single.k3s-cluster.net

@@ -1,6 +1,0 @@
----
-# Namespace for cert-manager
-traefik_namespace: traefik-system
-
-# Enable service mesh
-enable_linkerd: true
