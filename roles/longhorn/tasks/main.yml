@@ -1,7 +1,4 @@
 ---
-- name: Install longhorn prereqs
-  include_tasks: install_prereq.yml
-
 - name: Create longhorn namespace.
   kubernetes.core.k8s:
     name: "{{ longhorn_namespace }}"
