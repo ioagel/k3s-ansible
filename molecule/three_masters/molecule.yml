@@ -11,7 +11,7 @@ driver:
       - k3s_cluster
       - master
   - &os
-    box: ${VAGRANT_OS:-generic/centos9s}
+    box: ${VAGRANT_OS:-generic/ubuntu2204}
 platforms:
   - <<: [*control, *os]
     name: control1

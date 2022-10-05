@@ -37,10 +37,12 @@
       ansible.builtin.include_tasks: test/cert-manager.yml
     - name: "TEST CASE: Linkerd injection"
       ansible.builtin.include_tasks: test/linkerd-injection.yml
+      when: linkerd_enabled
     - name: "TEST CASE: Traefik"
       ansible.builtin.include_tasks: test/traefik.yml
     - name: "TEST CASE: Longhorn"
       ansible.builtin.include_tasks: test/longhorn.yml
+      when: longhorn_enabled
 
   always:
     - name: "Delete entries from /etc/hosts, mapped to traefik external ip: {{ traefik_external_ip }}"
