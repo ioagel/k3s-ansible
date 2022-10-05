@@ -3,7 +3,7 @@
 # List of required tools: kubectl, curl, jq, cat
 CURL=${CURL:-curl}
 JQ=${JQ:-jq}
-export KUBECONFIG=~/.kube/config
+export KUBECONFIG={{ kubeconfig }}
 
 CURL=$(command -v "${CURL}")
 JQ=$(command -v "${JQ}")
