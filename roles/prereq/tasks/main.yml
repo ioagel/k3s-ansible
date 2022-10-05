@@ -111,3 +111,45 @@
   until: k3s_selinux_prereqs_installed is not failed
   retries: 5
   when: ansible_os_family == "RedHat" and selinux_enabled
+
+- name: Install required longhorn dependencies in RedHat derivatives
+  ansible.builtin.dnf:
+    name:
+      - iscsi-initiator-utils
+      - nfs-utils
+    state: present
+    update_cache: true
+  register: longhorn_redhat
+  when: ansible_os_family == 'RedHat'
+
+- name: Install required longhorn dependencies in Debian derivatives
+  ansible.builtin.apt:
+    name:
+      - open-iscsi
+      - nfs-common
+    state: present
+    update_cache: true
+  register: longhorn_debian
+  when: ansible_os_family == 'Debian'
+
+- name: Setup iscsi initiator name in RedHat derivatives
+  shell:
+    cmd: echo "InitiatorName=$(/sbin/iscsi-iname)" > /etc/iscsi/initiatorname.iscsi
+  when: ansible_os_family == 'RedHat' and longhorn_redhat.changed
+
+- name: Enable iscsid service for Longhorn
+  ansible.builtin.systemd:
+    name: iscsid
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  when: longhorn_redhat.changed or longhorn_debian.changed
+
+- name: Load the required Longhorn kernel modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - iscsi_tcp
+    - nfs
+  when: longhorn_redhat.changed or longhorn_debian.changed

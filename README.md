@@ -24,6 +24,7 @@ on processor architecture:
 - [x] [cert-manager](https://github.com/cert-manager/cert-manager) for cluster certificate management
 - [x] [linkerd](https://github.com/linkerd/linkerd2) for the service mesh
 - [x] [traefik](https://github.com/traefik/traefik) for Ingress (with default http to https redirect)
+- [x] [longhorn](https://longhorn.io/) for storage needs
 - [ ] [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus) for metrics, monitoring, alerting
 - [ ] [grafana loki](https://github.com/grafana/loki) for logging
 

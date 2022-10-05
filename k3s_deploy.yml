@@ -11,22 +11,6 @@
     K8S_AUTH_KUBECONFIG: "{{ kubeconfig }}"
 
   pre_tasks:
-    - name: Update package cache Debian and derivatives
-      ansible.builtin.apt:
-        update_cache: yes
-        cache_valid_time: 86400
-      become: true
-      when: ansible_os_family == "Debian"
-      tags: ["always"]
-
-    - name: Update package cache Redhat and derivatives
-      ansible.builtin.dnf:
-        update_cache: yes
-      become: true
-      changed_when: false
-      when: ansible_os_family == "RedHat"
-      tags: ["always"]
-
     # Install required packages
     - name: Ensure pip, git and jq are installed.
       package:
