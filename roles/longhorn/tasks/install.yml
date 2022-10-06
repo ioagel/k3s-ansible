@@ -37,6 +37,9 @@
   command:
     cmd: "/usr/local/bin/check_lh.sh"
   changed_when: false
+  register: lh_status
+  until: lh_status is not failed
+  retries: 1
 
 - name: Enable linkerd integration
   include_tasks: configure_linkerd_mesh.yml
