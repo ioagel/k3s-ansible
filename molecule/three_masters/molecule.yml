@@ -5,8 +5,8 @@ driver:
   name: vagrant
 .platform_presets:
   - &control
-    memory: 4096
-    cpus: 2
+    memory: 3072
+    cpus: 3
     groups:
       - k3s_cluster
       - master
