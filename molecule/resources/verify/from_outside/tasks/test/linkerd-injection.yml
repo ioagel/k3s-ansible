@@ -5,7 +5,7 @@
       ansible.builtin.shell:
         cmd: linkerd viz install | kubectl --kubeconfig {{ kubeconfig }} apply -f -
       changed_when: false
-      delegate_to: control1
+      delegate_to: "{{ groups['master'][0] }}"
       register: installing_viz
       until: installing_viz is not failed
       retries: 5
@@ -17,7 +17,7 @@
       register: viz_installed
       until: viz_installed is not failed
       retries: 5
-      delegate_to: control1
+      delegate_to: "{{ groups['master'][0] }}"
 
     - name: "Create namespace: {{ testing_linkerd_namespace }}"
       kubernetes.core.k8s:
@@ -45,7 +45,7 @@
       register: viz_check_deploy
       until: viz_check_deploy is not failed and viz_check_deploy.stdout != '[]'
       retries: 5
-      delegate_to: control1
+      delegate_to: "{{ groups['master'][0] }}"
 
     - name: Assert that nginx deployment is secure
       ansible.builtin.assert:
@@ -71,4 +71,4 @@
       ansible.builtin.shell:
         cmd: linkerd viz uninstall | kubectl --kubeconfig {{ kubeconfig }} delete -f -
       changed_when: false
-      delegate_to: control1
+      delegate_to: "{{ groups['master'][0] }}"
