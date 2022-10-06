@@ -37,9 +37,3 @@
         annotations:
           storageclass.kubernetes.io/is-default-class: "true"
     state: patched
-
-- name: Remove longhorn health check script
-  ansible.builtin.file:
-    path: /usr/local/bin/check_lh.sh
-    state: absent
-  become: true
