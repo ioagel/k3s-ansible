@@ -5,6 +5,9 @@
     api_version: v1
     kind: Namespace
     state: present
+  register: metallb_ns_ready
+  until: metallb_ns_ready is not failed
+  retries: 5
 
 - name: Add Metal LB chart repo.
   kubernetes.core.helm_repository:

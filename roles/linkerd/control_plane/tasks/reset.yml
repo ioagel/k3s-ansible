@@ -1,0 +1,36 @@
+---
+- name: Uninstall Linkerd-control Helm chart
+  kubernetes.core.helm:
+    name: linkerd-control-plane
+    chart_ref: linkerd/linkerd-control-plane
+    chart_version: "{{ linkerd_control_plane_chart_verion }}"
+    release_namespace: "{{ linkerd_namespace }}"
+    state: absent
+
+- name: Uninstall Linkerd-crds Helm chart.
+  kubernetes.core.helm:
+    name: linkerd-crds
+    chart_ref: linkerd/linkerd-crds
+    chart_version: "{{ linkerd_crds_chart_version }}"
+    release_namespace: "{{ linkerd_namespace }}"
+    state: absent
+
+- name: Remove Linkerd manifests
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/' + item) }}"
+    state: absent
+  with_items:
+    - linkerd_issuer.yml.j2
+    - linkerd_namespace.yml.j2
+
+- name: Remove Linkerd stable repo.
+  kubernetes.core.helm_repository:
+    name: linkerd
+    repo_url: "https://helm.linkerd.io/stable"
+    state: absent
+
+- name: Remove Linkerd CLI
+  file:
+    path: /usr/local/bin/linkerd
+    state: absent
+  become: yes

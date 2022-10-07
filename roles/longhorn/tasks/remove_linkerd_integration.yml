@@ -1,0 +1,30 @@
+---
+- name: Remove longhorn-manager annotation
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: DaemonSet
+      metadata:
+        name: longhorn-manager
+        namespace: "{{ longhorn_namespace }}"
+      spec:
+        template:
+          metadata:
+            annotations:
+              linkerd.io/inject: null
+    state: patched
+
+- name: Remove longhorn-ui annotation
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: longhorn-ui
+        namespace: "{{ longhorn_namespace }}"
+      spec:
+        template:
+          metadata:
+            annotations:
+              linkerd.io/inject: null
+    state: patched

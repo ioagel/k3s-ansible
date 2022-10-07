@@ -37,12 +37,12 @@
       --timeout=120s"
   register: longhorn_pods_ready
   until: longhorn_pods_ready.rc == 0
-  retries: 5
+  retries: 6
   changed_when: false
 
-- name: Enable linkerd integration
-  include_tasks: configure_linkerd_mesh.yml
-  when: linkerd_enabled
+- name: Manage linkerd integration
+  include_tasks: >-
+    {{ 'integrate_linkerd.yml' if linkerd_enabled else 'remove_linkerd_integration.yml' }}
 
 - name: Create Ingress rule for Longhorn UI
   kubernetes.core.k8s:
