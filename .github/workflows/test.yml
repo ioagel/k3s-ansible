@@ -4,13 +4,12 @@ on:
   pull_request:
   push:
     branches:
-      - master
       - devel
     paths-ignore:
       - "**/README.md"
       - "vagrant/**"
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "20 4 * * *"
 jobs:
   molecule:
     name: Molecule

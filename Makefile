@@ -30,11 +30,20 @@ ifeq ($(CURRENT_SCENARIO), single_node)
 else ifeq ($(CURRENT_SCENARIO), three_masters)
 	CURRENT_FIRST_MASTER_IP := $(THREE_MASTERS_FIRST_MASTER_IP)
 endif
+
+# If you use linux libvirt is a lot faster, please install kvm for your distro and vagrant libvirt plugin
+# and you thank me later
+# If you are in Linux and still want to use virtualbox, comment the following ifeq lines.
+ifeq ($(shell uname), Linux)
+	VAGRANT_PROVIDER_NAME ?= libvirt
+endif
+VAGRANT_PROVIDER_NAME ?= virtualbox
+export VAGRANT_PROVIDER_NAME
 #####
 
 ##### FUNCTIONS
 define download_kubeconfig
-	@scp -q -i ~/.cache/molecule/$(notdir $(shell pwd))/$(1)/.vagrant/machines/$(FIRST_MASTER_NAME)/virtualbox/private_key \
+	@scp -q -i ~/.cache/molecule/$(notdir $(shell pwd))/$(1)/.vagrant/machines/$(FIRST_MASTER_NAME)/$(VAGRANT_PROVIDER_NAME)/private_key \
 		-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR \
 		vagrant@$(2):~/.kube/config \
 		$(GIT_ROOT)/kubeconfig.$(1)
