@@ -20,10 +20,14 @@ To test on your local machine, follow these steps:
 Make sure that the following software packages are available on your system:
 
 - [Python 3](https://www.python.org/downloads)
-- [Vagrant](https://www.vagrantup.com/downloads)
-- [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+- [Vagrant](https://www.vagrantup.com/downloads) with `libvirt`(Linux) or `virtualbox`(Mac or Windows) providers
+  - For Linux only, `libvirt` is the default. Run `export VAGRANT_PROVIDER_NAME=virtualbox` in terminal to force `virtualbox` provider.
+- [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and/or **KVM**
+- (optional) [k9s](https://k9scli.io/) cli to inspect/manage k8s clusters
 
-Vagrant boxes used to test RedHat derivatives and Ubuntu: 
+For `Linux` install `kvm` instead of `virtualbox` and vagrant `libvirt` plugin, for better experience.
+
+Vagrant boxes used to test RedHat derivatives and Ubuntu:
 - generic/ubuntu2204
 - generic/debian11
 - generic/centos9s
@@ -61,26 +65,26 @@ source .env/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-### Run molecule
+### Run molecule scenarios with make
 
 With the virtual environment from the previous step active in your shell session, you can now use molecule to test the playbook.
-Interesting commands are:
+Interesting commands for the `default` scenario:
 
-- `molecule create`: Create virtual machines for the test cluster nodes.
-- `molecule converge`: Run the `site` playbook on the nodes of the test cluster.
-- `molecule verify`: Verify that the cluster works correctly.
-- `molecule side-effect`: Run the `reset` playbook on the nodes of the test cluster.
-- `molecule destroy`: Delete the virtual machines for the test cluster nodes.
-- `molecule test`: The "all-in-one" sequence of steps that is executed in CI.
+- `make mol-create`: Create virtual machines for the test cluster nodes.
+- `make mol-conv`: Run the `site` playbook on the nodes of the test cluster.
+- `make mol-ver`: Verify that the cluster works correctly.
+- `make mol-side`: Run the `reset` playbook on the nodes of the test cluster.
+- `make mol-destroy`: Delete the virtual machines for the test cluster nodes.
+- `make mol`: The "all-in-one" sequence of steps that is executed in CI.
   This includes the `create`, `converge`, `verify`, `side-effect` and `destroy` steps.
   See [`molecule.yml`](default/molecule.yml) for more details.
-
-#### Make
-
-For better experience use `make`, check the [Makefile](../Makefile) for targets.
 
 For TDD like experience for the `default` scenario:
 - `make mol-conv` (converge) This will also download from the first master the `kubeconfig` file that you can use to connect to the cluster. Instructions are provided by running the target.
 - `make mol-ver` (verify)
 
-Rince and repeat.
+Rinse and repeat.
+
+Check the [Makefile](../Makefile) for additional targets and help.
+
+If you have installed `k9s`, use `./k9s.sh default|single|three` to inspect your cluster.

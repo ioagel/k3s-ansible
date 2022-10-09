@@ -3,6 +3,8 @@ dependency:
   name: galaxy
 driver:
   name: vagrant
+  provider:
+    name: ${VAGRANT_PROVIDER_NAME:-virtualbox}
 .platform_presets:
   - &control
     memory: 3072
