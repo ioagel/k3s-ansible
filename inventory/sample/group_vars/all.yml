@@ -53,6 +53,8 @@ k3s_master_taint: "{{ true if groups['node'] | default([]) | length >= 1 else fa
 extra_args: >-
   --flannel-iface={{ flannel_iface }}
   --node-ip={{ k3s_node_ip }}
+  --kubelet-arg=config=/etc/rancher/k3s/kubelet.config
+  --kube-proxy-arg=metrics-bind-address=0.0.0.0
   {{ '--selinux' if ansible_os_family == 'RedHat' and selinux_enabled else '' }}
 
 # change these to your liking, the only required are: --disable servicelb, --tls-san {{ apiserver_endpoint }}
@@ -62,16 +64,15 @@ extra_server_args: >-
   {{ '--node-taint node-role.kubernetes.io/master=true:NoSchedule' if k3s_master_taint else '' }}
   --disable servicelb
   --disable traefik
-  --kubelet-arg=config=/etc/rancher/k3s/kubelet.config
   --kube-controller-manager-arg=bind-address=0.0.0.0
   --kube-controller-manager-arg=--pod-eviction-timeout=20s
-  --kube-proxy-arg=metrics-bind-address=0.0.0.0
   --kube-scheduler-arg=bind-address=0.0.0.0
   --etcd-expose-metrics=true
   --kube-apiserver-arg=--default-not-ready-toleration-seconds=20
   --kube-apiserver-arg=--default-unreachable-toleration-seconds=20
 extra_agent_args: >-
   {{ extra_args }}
+  --node-label 'node_type=worker'
 
 # k3s config directory
 k3s_config_directory: /etc/rancher/k3s

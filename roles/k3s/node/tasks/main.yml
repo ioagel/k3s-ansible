@@ -1,16 +1,33 @@
 ---
-
-- name: Copy K3s service file
-  template:
-    src: "k3s.service.j2"
-    dest: "{{ systemd_dir }}/k3s-node.service"
+- name: Create K3S configuration directory
+  file:
+    path: "{{ k3s_config_directory }}"
+    state: directory
     owner: root
     group: root
     mode: 0755
 
-- name: Enable and check K3s service
-  systemd:
-    name: k3s-node
-    daemon_reload: yes
-    state: restarted
-    enabled: yes
+- name: Copy kubelet configuration file
+  copy:
+    dest: "{{ k3s_config_directory }}/kubelet.config"
+    content: "{{ k3s_kubelet_config }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Get K3s installation script
+  get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s_install.sh
+    mode: '0755'
+
+- name: Install K3s
+  command: "/tmp/k3s_install.sh {{ extra_agent_args }}"
+  environment:
+    K3S_TOKEN: "{{ k3s_token }}"
+    K3S_URL: "https://{{ apiserver_endpoint }}:6443"
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+  register: workers_ready
+  changed_when: true
+  until: workers_ready is not failed
+  retries: 5

@@ -1,4 +1,38 @@
 ---
+- name: Download helm tar to first master which will be our control node
+  ansible.builtin.get_url:
+    url: https://get.helm.sh/helm-{{ helm_version }}-linux-{{ arch }}.tar.gz
+    checksum: sha256:https://get.helm.sh/helm-{{ helm_version }}-linux-{{ arch }}.tar.gz.sha256sum
+    dest: /tmp/helm.tar.gz
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+  register: helm_downloaded
+  until: helm_downloaded is not failed
+  retries: 5
+  when: inventory_hostname == groups['master'][0]
+
+- name: Extract the helm binary
+  ansible.builtin.unarchive:
+    src: /tmp/helm.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+    extra_opts:
+      - linux-amd64/helm
+      - --strip-components=1
+  when: inventory_hostname == groups['master'][0]
+
+- name: Get K3s installation script
+  get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s_install.sh
+    mode: '0755'
+
 - name: Create K3S configuration directory
   file:
     path: "{{ k3s_config_directory }}"
@@ -14,19 +48,6 @@
     owner: root
     group: root
     mode: 0644
-
-- name: Clean previous runs of k3s-init
-  systemd:
-    name: k3s-init
-    state: stopped
-  failed_when: false
-
-- name: Clean previous runs of k3s-init
-  command: systemctl reset-failed k3s-init
-  failed_when: false
-  changed_when: false
-  args:
-    warn: false  # The ansible systemd module does not support reset-failed
 
 - name: Create manifests directory on first master
   file:
@@ -55,83 +76,60 @@
     mode: 0644
   when: ansible_hostname == hostvars[groups['master'][0]]['ansible_hostname']
 
-- name: Init cluster inside the transient k3s-init service
-  command:
-    cmd: "systemd-run -p RestartSec=2 \
-      -p Restart=on-failure \
-      --unit=k3s-init \
-      k3s server {{ server_init_args }}"
-    creates: "{{ systemd_dir }}/k3s.service"
-  args:
-    warn: false  # The ansible systemd module does not support transient units
+- name: Install k3s on 1st master
+  command: "/tmp/k3s_install.sh server {{ server_args }}"
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+  register: first_master_ready
+  changed_when: true
+  until: first_master_ready is not failed
+  retries: 5
+  when: inventory_hostname == groups['master'][0]
+
+- name: Check if k3s installation in 1st master succeeded
+  shell:
+    cmd: |
+      JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'
+      kubectl get nodes -l "node-role.kubernetes.io/master=true" \
+      -o jsonpath="$JSONPATH" | grep -o "Ready=True" | uniq | wc -l
+  register: master_ready
+  until: master_ready.stdout | int == 1
+  retries: "{{ retry_count | default(10) }}"
+  delay: 10
+  changed_when: false
+  when: inventory_hostname == groups['master'][0]
+
+- name: Install k3s on rest of masters
+  command: "/tmp/k3s_install.sh server {{ server_args }}"
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+  register: other_master_ready
+  changed_when: true
+  until: other_master_ready is not failed
+  retries: 5
+  when: inventory_hostname != groups['master'][0]
 
 - name: Verification
   when: not ansible_check_mode
   block:
-    - name: Verify that all nodes actually joined (check k3s-init.service if this fails)
-      command:
-        cmd: k3s kubectl get nodes -l "node-role.kubernetes.io/master=true" -o=jsonpath="{.items[*].metadata.name}"
-      register: nodes
-      until: nodes.rc == 0 and (nodes.stdout.split() | length) == (groups['master'] | length)
-      retries: "{{ retry_count | default(20) }}"
+    - name: Check if k3s cluster is ready
+      shell:
+        cmd: |
+          JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'
+          kubectl get nodes -l "node-role.kubernetes.io/master=true" \
+          -o jsonpath="$JSONPATH" | grep -o "Ready=True" | wc -l
+      register: masters_ready
+      until: masters_ready.stdout | int == (groups['master'] | length)
+      retries: "{{ retry_count | default(10) }}"
       delay: 10
       changed_when: false
   always:
-    - name: Save logs of k3s-init.service
-      include_tasks: fetch_k3s_init_logs.yml
+    - name: Save logs of k3s.service
+      include_tasks: fetch_k3s_logs.yml
       when: log_destination
       vars:
         log_destination: >-
           {{ lookup('ansible.builtin.env', 'ANSIBLE_K3S_LOG_DIR', default=False) }}
-    - name: Kill the temporary service used for initialization
-      systemd:
-        name: k3s-init
-        state: stopped
-      failed_when: false
-
-- name: Copy K3s service file
-  register: k3s_service
-  template:
-    src: "k3s.service.j2"
-    dest: "{{ systemd_dir }}/k3s.service"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Enable and check K3s service
-  systemd:
-    name: k3s
-    daemon_reload: yes
-    state: restarted
-    enabled: yes
-
-- name: Wait for node-token
-  wait_for:
-    path: /var/lib/rancher/k3s/server/node-token
-
-- name: Register node-token file access mode
-  stat:
-    path: /var/lib/rancher/k3s/server
-  register: p
-
-- name: Change file access node-token
-  file:
-    path: /var/lib/rancher/k3s/server
-    mode: "g+rx,o+rx"
-
-- name: Read node-token from master
-  slurp:
-    src: /var/lib/rancher/k3s/server/node-token
-  register: node_token
-
-- name: Store Master node-token
-  set_fact:
-    token: "{{ node_token.content | b64decode | regex_replace('\n', '') }}"
-
-- name: Restore node-token file access
-  file:
-    path: /var/lib/rancher/k3s/server
-    mode: "{{ p.stat.mode }}"
 
 - name: Create directory .kube
   file:

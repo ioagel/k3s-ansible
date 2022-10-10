@@ -13,7 +13,7 @@
     - name: Override host variables
       ansible.builtin.set_fact:
         # The test VMs might be a bit slow, so we give them more time to join the cluster:
-        retry_count: 45
+        retry_count: 20
 
         # Make sure that our IP ranges do not collide with those of the default scenario
         apiserver_endpoint: "{{ kube_vip_ip }}"

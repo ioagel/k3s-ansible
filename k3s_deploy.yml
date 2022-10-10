@@ -31,7 +31,7 @@
       tags: ["always"]
 
     # Install Helm diff plugin to have a better idempotence check
-    - name: Install Helm Plugin
+    - name: Install diff Helm Plugin
       kubernetes.core.helm_plugin:
         plugin_path: "https://github.com/databus23/helm-diff"
         state: present
