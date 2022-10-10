@@ -2,10 +2,10 @@
 - name: Apply overrides
   hosts: all
   tasks:
+    - name: Include common overrides
+      include_tasks: common-overrides.yml
+
     - name: Override host variables
       ansible.builtin.set_fact:
         # The test VMs might be a bit slow, so we give them more time to join the cluster:
         retry_count: 45
-
-        # GitHub action fails if enabled: unable to connect to cluster
-        longhorn_enabled: false

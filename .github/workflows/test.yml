@@ -70,6 +70,9 @@ jobs:
           ANSIBLE_TIMEOUT: 60
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
+          # default and three_masters scenario mostly fail with longhorn enabled
+          # Local testing however, succeeds
+          LONGHORN_ENABLED: "false"
 
       - name: Upload log files
         if: always() # do this even if a step before has failed

@@ -5,9 +5,7 @@
 
   pre_tasks:
     - name: Include common overrides
-      include_tasks: >-
-        "{{ lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_DIRECTORY') }}/common-overrides.yml"
-      when: lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_NAME') != 'default'
+      include_tasks: "{{ lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_DIRECTORY') }}/common-overrides.yml"
     - name: Create temporary directory for kubecfg
       ansible.builtin.tempfile:
         state: directory

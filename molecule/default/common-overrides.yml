@@ -1,0 +1,4 @@
+---
+- name: Common Overrides
+  ansible.builtin.set_fact:
+    longhorn_enabled: "{{ lookup('ansible.builtin.env', 'LONGHORN_ENABLED', default=True) }}"
