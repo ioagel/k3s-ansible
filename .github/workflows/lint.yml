@@ -1,24 +1,41 @@
 ---
 name: Linting
 on:
-  pull_request:
-  push:
-    branches:
-      - devel
-
+  workflow_call:
 jobs:
   ansible-lint:
     name: YAML Lint + Ansible Lint
     runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: "3.10"
 
     steps:
       - name: Check out the codebase
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # 3.0.2
-
-      - name: Set up Python 3.x
-        uses: actions/setup-python@b55428b1882923874294fa556849718a1d7f2ca5 # 4.0.2
+        uses: actions/checkout@v3
         with:
-          python-version: "3.x"
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip" # caching pip dependencies
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('./requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Cache Ansible
+        uses: actions/cache@v3
+        with:
+          path: ~/.ansible/collections
+          key: ${{ runner.os }}-ansible-${{ hashFiles('collections/requirements.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ansible-
 
       - name: Install dependencies
         run: |
