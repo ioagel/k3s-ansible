@@ -1,21 +1,21 @@
 ---
 - name: Remove list of snap packages. Retry several times. It might fail because of package dependencies
   block:
-  - name: Increment the retry count
-    set_fact:
-      retry_count: "{{ 0 if retry_count is undefined else retry_count | int + 1 }}"
-  - name: List snap packages
-    shell: |
-      for i in `snap list | awk '!/Name/{print $1}'`;
-      do echo $i;
-      done
-    changed_when: false
-    register: snap_packages
-  - name: Remove snap packages
-    command: snap remove {{ item }}
-    changed_when: false
-    register: snap_remove_output
-    with_items: "{{ snap_packages.stdout_lines }}"
+    - name: Increment the retry count
+      set_fact:
+        retry_count: "{{ 0 if retry_count is undefined else retry_count | int + 1 }}"
+    - name: List snap packages
+      shell: |
+        for i in `snap list | awk '!/Name/{print $1}'`;
+        do echo $i;
+        done
+      changed_when: false
+      register: snap_packages
+    - name: Remove snap packages
+      command: snap remove {{ item }}
+      changed_when: false
+      register: snap_remove_output
+      with_items: "{{ snap_packages.stdout_lines }}"
   rescue:
     - name: Check number of retries and fail if greater that 3
       fail:
@@ -24,5 +24,5 @@
     - name: Printing retry message
       debug:
         msg: "Removing snap package failed, let's give it another shot"
-    - name: retrying deletion
+    - name: Retrying deletion
       include_tasks: remove_snap_packages.yml
